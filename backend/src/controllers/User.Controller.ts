@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt';
 import { UserModel } from "../models";
+import { Types } from "mongoose";
 
 class UserController {
     getUsers = async (req: Request, res: Response) => {
@@ -12,7 +13,8 @@ class UserController {
         const lastPage = Math.ceil(total / limit);
 
         res.json({
-            "message": "Users get successfully",
+            success: true,
+            message: "Users get successfully",
             items: users,
             total: total,
             currentPage: page,
@@ -27,12 +29,14 @@ class UserController {
 
         if (!user) {
             return res.status(404).json({
-                "message": "User not found"
+                success: false,
+                message: "User not found"
             })
         }
 
         res.json({
-            "message": "User get successfully",
+            success: true,
+            message: "User get successfully",
             data: user
         })
     }
@@ -44,7 +48,8 @@ class UserController {
 
         if (userExists) {
             return res.status(400).json({
-                "message": "User already exists"
+                success: false,
+                message: "User already exists"
             })
         }
 
@@ -59,7 +64,8 @@ class UserController {
         await user.save();
 
         res.json({
-            "message": "User created successfully",
+            success: true,
+            message: "User created successfully",
             data: user
         })
     }
@@ -72,6 +78,7 @@ class UserController {
 
         if (!user) {
             return res.status(404).json({
+                success: false,
                 message: "User not found"
             });
         }
@@ -79,11 +86,12 @@ class UserController {
         if (email) {
             const userExists = await UserModel.findOne({
                 email,
-                _id: { $ne: id } // exclude current user
+                _id: { $ne: new Types.ObjectId(id as string) }
             });
 
             if (userExists) {
                 return res.status(400).json({
+                    success: false,
                     message: "Email already in use"
                 });
             }
@@ -98,6 +106,7 @@ class UserController {
         await user.save();
 
         res.json({
+            success: true,
             message: "User updated successfully",
             data: user
         });
@@ -110,14 +119,16 @@ class UserController {
 
         if (!user) {
             return res.status(404).json({
-                "message": "User not found"
+                success: false,
+                message: "User not found"
             })
         }
 
         await user.deleteOne();
 
         res.json({
-            "message": "User deleted successfully",
+            success: true,
+            message: "User deleted successfully",
             data: user
         })
     }

@@ -3,4 +3,4 @@ import config from './config/config';
 
 app.listen(config.port, () => {
     console.log(`Server running in : http://localhost:${config.port}`);
-});
+});
