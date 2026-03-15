@@ -1,20 +1,19 @@
 import express from 'express';
-//import itemRoutes from './routes/itemRoutes';
-//import { errorHandler } from './middlewares/errorHandler';
+import { UserRouter } from './routes';
+import connectDB from './config/db';
 
 const app = express();
 
-app.use(express.json());
+connectDB();
 
-// Routes
-//app.use('/api/items', itemRoutes);
+app.use(express.json());
 
 //Hello World
 app.get('/', (req, res) => {
     res.json({ "message": "Hello World!" });
 });
 
-// Global error handler (should be after routes)
-//app.use(errorHandler);
+// Routes
+app.use('/api/v1/users', UserRouter);
 
 export default app;
