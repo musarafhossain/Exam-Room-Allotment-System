@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const subjectSchema = new mongoose.Schema(
     {
+        semester: {
+            type: Number,
+            required: true
+        },
         department: {
             type: String,
             required: true
@@ -53,11 +57,6 @@ const subjectSchema = new mongoose.Schema(
 
 const examSchema = new mongoose.Schema(
     {
-        semester: {
-            type: Number,
-            required: true
-        },
-
         date: {
             type: Date,
             required: true

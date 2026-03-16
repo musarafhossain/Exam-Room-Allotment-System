@@ -26,4 +26,10 @@ StudentRoomRouter.put(
 
 StudentRoomRouter.delete('/:id', verifyJwtToken, StudentRoomController.deleteStudentRoom);
 
+StudentRoomRouter.post(
+    "/find-student-room",
+    validate(StudentRoomValidator.findStudentRoomSchema),
+    StudentRoomController.findStudentRoom
+);
+
 export default StudentRoomRouter;
