@@ -1,66 +1,82 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
+import {
+  Box,
+  IconButton,
+  Typography,
+  Grid,
+  Paper,
+} from '@mui/material';
+
+import { DarkMode, LightMode } from '@mui/icons-material';
+
+import {
+  useColorScheme,
+} from '@mui/material/styles';
+
+
+// 🔥 Inner component (must be inside provider)
+function Content() {
+  const { mode, setMode } = useColorScheme();
+
+  const colors = [
+    'primary',
+    'secondary',
+    'error',
+    'warning',
+    'info',
+    'success',
+  ] as const;
+
+  const shades = ['light', 'main', 'dark'] as const;
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      {/* Toggle Button */}
+      <Box sx={{ position: 'fixed', top: 16, right: 16 }}>
+        <IconButton
+          onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+        >
+          {mode === 'light' ? <DarkMode /> : <LightMode />}
+        </IconButton>
+      </Box>
+
+      <Box sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          MUI Theme Colors ({mode})
+        </Typography>
+
+        <Grid container spacing={2}>
+          {colors.map((color) =>
+            shades.map((shade) => (
+              <Grid size={{ sm: 1, md: 2, lg: 3 }} key={`${color}-${shade}`}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    bgcolor: `${color}.${shade}`,
+                    color: (theme) =>
+                      theme.palette.getContrastText(
+                        theme.palette[color][shade]
+                      ),
+                  }}
+                >
+                  <Typography variant="subtitle1">
+                    {color}.{shade}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))
+          )}
+        </Grid>
+      </Box>
+    </>
+  );
+}
+
+
+// 🔥 Main Page
+export default function Page() {
+  return (
+    <Content />
   );
 }
