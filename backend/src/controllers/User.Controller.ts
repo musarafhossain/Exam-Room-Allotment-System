@@ -8,8 +8,11 @@ class UserController {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
-        const users = await UserModel.find().skip(skip).limit(limit);
-        const total = await UserModel.countDocuments();
+
+        const query = req.user ? { _id: { $ne: req.user._id } } : {};
+
+        const users = await UserModel.find(query).skip(skip).limit(limit);
+        const total = await UserModel.countDocuments(query);
         const lastPage = Math.ceil(total / limit);
 
         res.json({

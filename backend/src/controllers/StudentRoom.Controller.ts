@@ -43,9 +43,9 @@ class StudentRoomController {
     }
 
     createStudentRoom = async (req: Request, res: Response) => {
-        const { roomNo, roomName, floor, building, exams } = req.body;
+        const { roomNo, roomName, floor, building, subject, semester, time, date, regNoFrom, regNoTo, paper } = req.body;
 
-        const roomExists = await StudentRoomModel.findOne({ roomNo });
+        const roomExists = await StudentRoomModel.findOne({ roomNo, date, regNoFrom, regNoTo, subject, semester, time, paper });
 
         if (roomExists) {
             return res.status(400).json({
@@ -59,7 +59,13 @@ class StudentRoomController {
             roomName,
             floor,
             building,
-            exams
+            subject,
+            semester,
+            time,
+            date,
+            regNoFrom,
+            regNoTo,
+            paper
         });
 
         await room.save();
@@ -73,7 +79,7 @@ class StudentRoomController {
 
     updateStudentRoom = async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { roomNo, roomName, floor, building, exams } = req.body;
+        const { roomNo, floor, building, subject, semester, time, date, regNoFrom, regNoTo, paper } = req.body;
 
         const room = await StudentRoomModel.findById(id);
 
@@ -84,26 +90,25 @@ class StudentRoomController {
             });
         }
 
-        if (roomNo) {
-            const exists = await StudentRoomModel.findOne({
-                roomNo,
-                _id: { $ne: new Types.ObjectId(id as string) }
+        const roomExists = await StudentRoomModel.findOne({ roomNo, date, regNoFrom, regNoTo, subject, semester, time, paper, _id: { $ne: new Types.ObjectId(id as string) } });
+
+        if (roomExists) {
+            return res.status(400).json({
+                success: false,
+                message: "Room already exists"
             });
-
-            if (exists) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Room number already in use"
-                });
-            }
-
-            room.roomNo = roomNo;
         }
 
-        if (roomName) room.roomName = roomName;
+        if (roomNo) room.roomNo = roomNo;
         if (floor) room.floor = floor;
         if (building) room.building = building;
-        if (exams) room.exams = exams;
+        if (subject) room.subject = subject;
+        if (semester) room.semester = semester;
+        if (time) room.time = time;
+        if (date) room.date = date;
+        if (regNoFrom) room.regNoFrom = regNoFrom;
+        if (regNoTo) room.regNoTo = regNoTo;
+        if (paper) room.paper = paper;
 
         await room.save();
 
@@ -136,93 +141,93 @@ class StudentRoomController {
     }
 
     findStudentRoom = async (req: Request, res: Response) => {
-        const { regNo, date } = req.body;
+        try {
+            const { regNo, date } = req.body;
 
-        // Normalize input date (YYYY-MM-DD)
-        const inputDateStr = new Date(date).toISOString().split("T")[0];
+            // ✅ Validate regNo (must be numeric string)
+            if (!/^\d+$/.test(regNo)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid registration number"
+                });
+            }
 
-        // SECURITY: allow room info from day-before exam
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+            // ✅ Convert to BigInt (SAFE for 20 digits)
+            const regNoBig = BigInt(regNo);
 
-        const examDate = new Date(date);
-        examDate.setHours(0, 0, 0, 0);
+            // ✅ Validate date
+            const inputDate = new Date(date);
+            if (isNaN(inputDate.getTime())) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid date format"
+                });
+            }
 
-        const dayBeforeExam = new Date(examDate);
-        dayBeforeExam.setDate(dayBeforeExam.getDate() - 1);
+            // ✅ SECURITY: allow only from day-before exam
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-        // If today is before the day-before exam, block access
-        /* if (today < dayBeforeExam) {
-            return res.status(403).json({
-                success: false,
-                message: `Room info is available only from day before the exam.`
+            const examDate = new Date(inputDate);
+            examDate.setHours(0, 0, 0, 0);
+
+            const dayBeforeExam = new Date(examDate);
+            dayBeforeExam.setDate(dayBeforeExam.getDate() - 1);
+
+            /* if (today < dayBeforeExam) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Room info is available only from day before the exam."
+                });
+            } */
+
+            // ✅ Fetch by date only (fast filter)
+            const rooms = await StudentRoomModel.find({
+                date: inputDate
             });
-        } */
 
-        // Convert regNo to number for safe comparison
-        const regNoNum = parseInt(regNo, 10);
+            // ✅ BigInt comparison (NO precision loss)
+            const room = rooms.find(r => {
+                try {
+                    const from = BigInt(r.regNoFrom);
+                    const to = BigInt(r.regNoTo);
 
-        const result = await StudentRoomModel.aggregate([
-            { $unwind: "$exams" },
-
-            // Convert exam date to string for matching
-            {
-                $addFields: {
-                    examDateStr: { $dateToString: { format: "%Y-%m-%d", date: "$exams.date" } }
+                    return regNoBig >= from && regNoBig <= to;
+                } catch {
+                    return false; // skip invalid data safely
                 }
-            },
-            { $match: { examDateStr: inputDateStr } },
+            });
 
-            { $unwind: "$exams.subjects" },
+            if (!room) {
+                return res.status(404).json({
+                    success: false,
+                    message: "No exam room found for this registration number on date " + inputDate.toDateString()
+                });
+            }
 
-            // Convert regNoFrom / regNoTo to numbers
-            {
-                $addFields: {
-                    regFromNum: { $toInt: "$exams.subjects.regNoFrom" },
-                    regToNum: { $toInt: "$exams.subjects.regNoTo" }
+            return res.json({
+                success: true,
+                message: "Student room found",
+                data: {
+                    roomNo: room.roomNo,
+                    floor: room.floor,
+                    building: room.building,
+                    subject: room.subject,
+                    paper: room.paper,
+                    semester: room.semester,
+                    time: room.time,
+                    date: room.date,
                 }
-            },
-            {
-                $match: {
-                    regFromNum: { $lte: regNoNum },
-                    regToNum: { $gte: regNoNum }
-                }
-            },
+            });
 
-            // Project required fields
-            {
-                $project: {
-                    _id: 0,
-                    roomNo: 1,
-                    roomName: 1,
-                    floor: 1,
-                    building: 1,
-                    semester: "$exams.subjects.semester",
-                    department: "$exams.subjects.department",
-                    subject: "$exams.subjects.subject",
-                    paper: "$exams.subjects.paper",
-                    shift: "$exams.subjects.shift",
-                    startTime: "$exams.subjects.startTime",
-                    endTime: "$exams.subjects.endTime",
-                    duration: "$exams.subjects.duration",
-                    date: "$exams.date"
-                }
-            },
-            { $limit: 1 }
-        ]);
+        } catch (error) {
+            console.error("FindStudentRoom Error:", error);
 
-        if (!result || result.length === 0) {
-            return res.status(404).json({
+            return res.status(500).json({
                 success: false,
-                message: "No exam room found for this registration number"
+                message: "Internal server error"
             });
         }
-
-        return res.json({
-            success: true,
-            message: "Student room found",
-            data: result[0]
-        });
     };
 }
 
