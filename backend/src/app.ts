@@ -1,8 +1,18 @@
 import express from 'express';
+import cors from 'cors';
 import { UserRouter, AuthRouter, StudentRoomRouter } from './routes';
 import connectDB from './config/db';
 
 const app = express();
+
+const corsOptions = {
+  origin: [
+    'http://localhost:8081'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 
 connectDB();
 

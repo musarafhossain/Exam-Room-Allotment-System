@@ -17,7 +17,7 @@ StudentRoomRouter.post(
     StudentRoomController.createStudentRoom
 );
 
-StudentRoomRouter.put(
+StudentRoomRouter.patch(
     '/:id',
     verifyJwtToken,
     validate(StudentRoomValidator.updateStudentRoomSchema),

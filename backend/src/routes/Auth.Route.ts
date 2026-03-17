@@ -7,7 +7,7 @@ import verifyJwtToken from '../middlewares/verifyJwtToken';
 const AuthRouter = express.Router();
 
 AuthRouter.post('/login', validate(AuthValidator.loginSchema), AuthController.login);
-AuthRouter.get('/logout', verifyJwtToken, AuthController.logout);
+AuthRouter.post('/logout', verifyJwtToken, AuthController.logout);
 AuthRouter.get('/me', verifyJwtToken, AuthController.me);
 
 export default AuthRouter;
