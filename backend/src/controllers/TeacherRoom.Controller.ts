@@ -43,18 +43,19 @@ class TeacherRoomController {
     }
 
     createTeacherRoom = async (req: Request, res: Response) => {
-        const { roomNo, floor, building, time, date } = req.body;
+        const { name, roomNo, floor, building, time, date } = req.body;
 
-        const roomExists = await TeacherRoomModel.findOne({ roomNo, date, time });
+        const roomExists = await TeacherRoomModel.findOne({ name, roomNo, date, time });
 
         if (roomExists) {
             return res.status(400).json({
                 success: false,
-                message: "Room already exists"
+                message: "Room assignment already exists"
             });
         }
 
         const room = new TeacherRoomModel({
+            name,
             roomNo,
             floor,
             building,
@@ -73,7 +74,7 @@ class TeacherRoomController {
 
     updateTeacherRoom = async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { roomNo, floor, building, time, date } = req.body;
+        const { name, roomNo, floor, building, time, date } = req.body;
 
         const room = await TeacherRoomModel.findById(id);
 
@@ -84,15 +85,16 @@ class TeacherRoomController {
             });
         }
 
-        const roomExists = await TeacherRoomModel.findOne({ roomNo, date, time, _id: { $ne: new Types.ObjectId(id as string) } });
+        const roomExists = await TeacherRoomModel.findOne({ name, roomNo, date, time, _id: { $ne: new Types.ObjectId(id as string) } });
 
         if (roomExists) {
             return res.status(400).json({
                 success: false,
-                message: "Room already exists"
+                message: "Room assignment already exists"
             });
         }
 
+        if (name) room.name = name as any;
         if (roomNo) room.roomNo = roomNo;
         if (floor) room.floor = floor;
         if (building) room.building = building;
@@ -128,6 +130,46 @@ class TeacherRoomController {
             data: room
         });
     }
+
+    findTeacherRoom = async (req: Request, res: Response) => {
+        try {
+            const { name, date } = req.body;
+
+            const inputDate = new Date(date);
+            if (isNaN(inputDate.getTime())) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid date format"
+                });
+            }
+
+            // Alike search (partial match, case-insensitive)
+            const rooms = await TeacherRoomModel.find({
+                name: { $regex: name, $options: "i" },
+                date: inputDate
+            });
+
+            if (!rooms || rooms.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: `No exam rooms found for teacher name like "${name}" on date ${inputDate.toDateString()}`
+                });
+            }
+
+            return res.json({
+                success: true,
+                message: "Teacher room(s) found",
+                data: rooms
+            });
+
+        } catch (error) {
+            console.error("FindTeacherRoom Error:", error);
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error"
+            });
+        }
+    };
 
     bulkDeleteTeacherRoom = async (req: Request, res: Response) => {
         try {

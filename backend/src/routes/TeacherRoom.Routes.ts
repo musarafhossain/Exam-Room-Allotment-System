@@ -27,6 +27,12 @@ TeacherRoomRouter.patch(
 TeacherRoomRouter.delete('/:id', verifyJwtToken, TeacherRoomController.deleteTeacherRoom);
 
 TeacherRoomRouter.post(
+    "/find-teacher-room",
+    validate(TeacherRoomValidator.findTeacherRoomSchema),
+    TeacherRoomController.findTeacherRoom
+);
+
+TeacherRoomRouter.post(
     "/bulk-delete",
     verifyJwtToken,
     TeacherRoomController.bulkDeleteTeacherRoom
