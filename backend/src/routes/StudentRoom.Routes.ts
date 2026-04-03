@@ -32,4 +32,9 @@ StudentRoomRouter.post(
     StudentRoomController.findStudentRoom
 );
 
+StudentRoomRouter.post(
+    "/bulk-delete",
+    StudentRoomController.bulkDeleteStudentRoom
+);
+
 export default StudentRoomRouter;
