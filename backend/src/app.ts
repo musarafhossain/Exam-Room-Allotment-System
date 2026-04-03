@@ -2,12 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import { UserRouter, AuthRouter, StudentRoomRouter, TeacherRoomRouter } from './routes';
 import connectDB from './config/db';
+import config from './config/config';
 
 const app = express();
 
 const corsOptions = {
   origin: [
-    'http://localhost:8081'
+    config.frontendOrigin
   ],
   credentials: true,
   optionsSuccessStatus: 200,

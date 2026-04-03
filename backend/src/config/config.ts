@@ -8,6 +8,7 @@ interface DatabaseConfig {
 }
 
 interface Config {
+    frontendOrigin: string;
     port: number;
     nodeEnv: string;
     jwtTokenSecretKey: string;
@@ -15,6 +16,7 @@ interface Config {
 }
 
 const config: Config = {
+    frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:8081',
     port: Number(process.env.PORT) || 3000,
     nodeEnv: process.env.NODE_ENV || 'development',
     jwtTokenSecretKey: process.env.JWT_TOKEN_SECRET_KEY || 'examroomallotmentdb',
