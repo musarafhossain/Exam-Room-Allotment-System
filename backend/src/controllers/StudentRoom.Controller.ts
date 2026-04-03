@@ -232,7 +232,7 @@ class StudentRoomController {
 
     bulkDeleteStudentRoom = async (req: Request, res: Response) => {
         try {
-            const { ids } = req.body.ids;
+            const { ids } = req.body;
 
             if (ids) {
                 const result = await StudentRoomModel.deleteMany({ _id: { $in: ids } });
