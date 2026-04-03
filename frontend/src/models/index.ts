@@ -1,8 +1,12 @@
-export class ResponseModel<T> {
-  data!: T
-  status!: number
-  message!: string
-  success!: boolean
+import UserModel from "./User.Models";
+import StudentRoomModel from "./StudentRoom.Models";
+import TeacherRoomModel from "./TeacherRoom.Models";
+
+export interface ResponseModel<T> extends Partial<PageModel<T>> {
+  data?: T
+  status?: number
+  message: string
+  success: boolean
 }
 
 export class PageModel<T> {
@@ -13,4 +17,8 @@ export class PageModel<T> {
   public unreadCount?: number;
 }
 
-export { }
+export {
+  UserModel,
+  StudentRoomModel,
+  TeacherRoomModel,
+}

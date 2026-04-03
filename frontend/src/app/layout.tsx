@@ -3,7 +3,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { ReactQueryProvider, ReactHotToastProvider } from 'providers';
+import { ReactQueryProvider, ReactHotToastProvider, AuthProvider } from 'providers';
 import "./globals.css";
 
 const theme = createTheme({
@@ -119,9 +119,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <CssBaseline />
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <ReactHotToastProvider>
-              <ReactQueryProvider>
-                {children}
-              </ReactQueryProvider>
+              <AuthProvider>
+                <ReactQueryProvider>
+                  {children}
+                </ReactQueryProvider>
+              </AuthProvider>
             </ReactHotToastProvider>
           </LocalizationProvider>
         </ThemeProvider>
