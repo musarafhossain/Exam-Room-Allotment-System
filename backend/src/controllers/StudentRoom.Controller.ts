@@ -229,6 +229,29 @@ class StudentRoomController {
             });
         }
     };
+
+    bulkDeleteStudentRoom = async (req: Request, res: Response) => {
+        try {
+            const { ids } = req.body.ids;
+
+            if (ids) {
+                const result = await StudentRoomModel.deleteMany({ _id: { $in: ids } });
+            }
+
+            res.json({
+                success: true,
+                message: `Student rooms deleted successfully`,
+                data: ids
+            });
+        } catch (error) {
+            console.error("BulkDeleteStudentRoom Error:", error);
+
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error"
+            });
+        }
+    }
 }
 
 export default new StudentRoomController();
