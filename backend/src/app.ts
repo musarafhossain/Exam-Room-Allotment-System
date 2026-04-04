@@ -8,7 +8,9 @@ const app = express();
 
 const corsOptions = {
   origin: [
-    config.frontendOrigin
+    config.frontendOrigin1,
+    config.frontendOrigin2,
+    config.frontendOrigin3
   ],
   credentials: true,
   optionsSuccessStatus: 200,
