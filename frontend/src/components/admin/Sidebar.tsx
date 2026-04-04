@@ -26,10 +26,13 @@ import {
 import { useRouter, usePathname } from 'next/navigation';
 
 export const DRAWER_WIDTH = 280;
+export const COLLAPSED_DRAWER_WIDTH = 88;
 
 interface SidebarProps {
   mobileOpen: boolean;
   onDrawerToggle: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
 const MENU_ITEMS = [
@@ -39,26 +42,39 @@ const MENU_ITEMS = [
   { text: 'Teacher Rooms', icon: <TeacherIcon />, path: '/admin/teacher-rooms' },
 ];
 
-export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
+export default function Sidebar({ mobileOpen, onDrawerToggle, isCollapsed, onToggleCollapse }: SidebarProps) {
   const router = useRouter();
   const theme = useTheme();
   const pathname = usePathname();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main' }}>
-          EXAM ALLOTMENT
-        </Typography>
-        {isMobile && (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
+      <Box sx={{ 
+        p: isCollapsed ? 2 : 3, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: isCollapsed ? 'center' : 'space-between',
+        minHeight: 64
+      }}>
+        {!isCollapsed && (
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', whiteSpace: 'nowrap' }}>
+            EXAM ALLOTMENT
+          </Typography>
+        )}
+        
+        {isMobile ? (
           <IconButton onClick={onDrawerToggle}>
             <ChevronLeftIcon />
+          </IconButton>
+        ) : (
+          <IconButton onClick={onToggleCollapse} sx={{ color: 'text.secondary' }}>
+            {isCollapsed ? <MenuIcon /> : <ChevronLeftIcon />}
           </IconButton>
         )}
       </Box>
       <Divider />
-      <List sx={{ px: 2, py: 3 }}>
+      <List sx={{ px: isCollapsed ? 1.5 : 2, py: 3 }}>
         {MENU_ITEMS.map((item) => {
           const active = pathname === item.path;
           return (
@@ -70,6 +86,9 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
                 }}
                 sx={{
                   borderRadius: 2,
+                  justifyContent: isCollapsed ? 'center' : 'flex-start',
+                  px: isCollapsed ? 0 : 2,
+                  height: 48,
                   bgcolor: active ? 'primary.lighter' : 'transparent',
                   color: active ? 'primary.main' : 'text.secondary',
                   '&:hover': {
@@ -78,10 +97,24 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
                   },
                 }}
               >
-                <ListItemIcon sx={{ color: active ? 'primary.main' : 'inherit', minWidth: 40 }}>
+                <ListItemIcon sx={{ 
+                  color: active ? 'primary.main' : 'inherit', 
+                  minWidth: isCollapsed ? 0 : 40,
+                  mr: isCollapsed ? 0 : 0,
+                  justifyContent: 'center'
+                }}>
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText primary={item.text} primaryTypographyProps={{ variant: 'body2', fontWeight: active ? 600 : 500 }} />
+                {!isCollapsed && (
+                  <ListItemText 
+                    primary={item.text} 
+                    primaryTypographyProps={{ 
+                      variant: 'body2', 
+                      fontWeight: active ? 600 : 500,
+                      sx: { whiteSpace: 'nowrap' }
+                    }} 
+                  />
+                )}
               </ListItemButton>
             </ListItem>
           );
@@ -90,10 +123,19 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
     </Box>
   );
 
+  const currentWidth = isCollapsed ? COLLAPSED_DRAWER_WIDTH : DRAWER_WIDTH;
+
   return (
     <Box
       component="nav"
-      sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
+      sx={{ 
+        width: { md: currentWidth }, 
+        flexShrink: { md: 0 },
+        transition: theme.transitions.create('width', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+      }}
     >
       {/* Mobile Drawer */}
       <Drawer
@@ -114,7 +156,17 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
         variant="permanent"
         sx={{
           display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: DRAWER_WIDTH, borderRight: '1px solid', borderColor: 'divider' },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box', 
+            width: currentWidth, 
+            borderRight: '1px solid', 
+            borderColor: 'divider',
+            transition: theme.transitions.create('width', {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+            overflowX: 'hidden'
+          },
         }}
         open
       >

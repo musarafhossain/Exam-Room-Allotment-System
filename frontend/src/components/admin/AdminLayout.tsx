@@ -23,9 +23,10 @@ import {
   AccountCircle as AccountCircleIcon,
   Logout as LogoutIcon
 } from '@mui/icons-material';
-import Sidebar, { DRAWER_WIDTH } from './Sidebar';
+import Sidebar, { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH } from './Sidebar';
 import { useAuth } from '../../hooks';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '@mui/material/styles';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -33,13 +34,21 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { user, logout } = useAuth();
   const router = useRouter();
+  const theme = useTheme();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const currentDrawerWidth = isCollapsed ? COLLAPSED_DRAWER_WIDTH : DRAWER_WIDTH;
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -63,14 +72,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <AppBar
         position="fixed"
         sx={{
-          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
-          ml: { md: `${DRAWER_WIDTH}px` },
+          width: { md: `calc(100% - ${currentDrawerWidth}px)` },
+          ml: { md: `${currentDrawerWidth}px` },
           bgcolor: 'background.paper',
           color: 'text.primary',
           boxShadow: 'none',
           borderBottom: '1px solid',
           borderColor: 'divider',
           zIndex: (theme) => theme.zIndex.drawer + 1,
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -150,6 +163,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <Sidebar
         mobileOpen={mobileOpen}
         onDrawerToggle={handleDrawerToggle}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={handleToggleCollapse}
       />
 
       {/* Main Content */}
@@ -158,8 +173,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         sx={{
           flexGrow: 1,
           p: { xs: 2, md: 4 },
-          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
+          width: { md: `calc(100% - ${currentDrawerWidth}px)` },
           mt: '64px',
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
         }}
       >
         <Container maxWidth="xl" sx={{ p: 0 }}>
