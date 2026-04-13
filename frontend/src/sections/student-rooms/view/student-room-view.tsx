@@ -4,10 +4,12 @@ import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Box, 
+  Tabs,
+  Tab 
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { StudentRoomService } from 'services';
+import { StudentRoomService, FloorService, SubjectService, PaperService, BuildingService } from 'services';
 import { StudentRoomModel } from 'models';
 import DataTable from 'components/common/DataTable';
 import ManagementModal from 'components/common/ManagementModal';
@@ -27,16 +29,42 @@ export function StudentRoomView() {
   const [bulkDeleteTargetIds, setBulkDeleteTargetIds] = useState<string[] | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'UG/PG' | 'Others'>('UG/PG');
 
   // Fetch data
   const stuRoomQuery = useQuery({
-    queryKey: ['student-rooms', page, rowsPerPage, searchTerm],
-    queryFn: () => StudentRoomService.getList({ page: page + 1, limit: rowsPerPage, search: searchTerm }),
+    queryKey: ['student-rooms', page, rowsPerPage, searchTerm, activeTab],
+    queryFn: () => StudentRoomService.getList({ page: page + 1, limit: rowsPerPage, search: searchTerm, examType: activeTab }),
+  });
+
+  const floorQuery = useQuery({
+    queryKey: ['floors-all'],
+    queryFn: () => FloorService.getList({ page: 1, limit: 1000 }),
+  });
+
+  const subjectQuery = useQuery({
+    queryKey: ['subjects-all'],
+    queryFn: () => SubjectService.getList({ page: 1, limit: 1000 }),
+  });
+
+  const paperQuery = useQuery({
+    queryKey: ['papers-all'],
+    queryFn: () => PaperService.getList({ page: 1, limit: 1000 }),
+  });
+
+  const buildingQuery = useQuery({
+    queryKey: ['buildings-all'],
+    queryFn: () => BuildingService.getList({ page: 1, limit: 1000 }),
   });
 
   // More robust data extraction
   const rooms = stuRoomQuery?.data?.items || [];
   const totalCount = stuRoomQuery?.data?.total || rooms.length || 0;
+
+  const floors = floorQuery?.data?.items || [];
+  const subjects = subjectQuery?.data?.items || [];
+  const papers = paperQuery?.data?.items || [];
+  const buildings = buildingQuery?.data?.items || [];
 
   // Form setup
   const methods = useForm<RoomFormValues>({
@@ -44,6 +72,8 @@ export function StudentRoomView() {
     defaultValues: useMemo(() => {
       if (selectedRoom) {
         return {
+          examType: selectedRoom.examType || 'UG/PG',
+          examName: selectedRoom.examName || '',
           roomNo: selectedRoom.roomNo,
           floor: selectedRoom.floor || '',
           building: selectedRoom.building || '',
@@ -57,6 +87,7 @@ export function StudentRoomView() {
         };
       }
       return {
+        examType: 'UG/PG', examName: '',
         semester: 1,
         roomNo: '', floor: '', building: '', subject: '', paper: '',
         time: '10:00', date: '', regNoFrom: '', regNoTo: ''
@@ -111,6 +142,8 @@ export function StudentRoomView() {
     setSelectedRoom(room);
     if (room) {
       reset({
+        examType: room.examType || activeTab,
+        examName: room.examName || '',
         roomNo: room.roomNo,
         floor: room.floor,
         building: room.building,
@@ -124,8 +157,10 @@ export function StudentRoomView() {
       });
     } else {
       reset({
+        examType: activeTab, examName: '',
+        semester: 1,
         roomNo: '', floor: '', building: '', subject: '', paper: '',
-        semester: 1, time: '10:00', date: '', regNoFrom: '', regNoTo: ''
+        time: '10:00', date: '', regNoFrom: '', regNoTo: ''
       });
     }
     setIsModalOpen(true);
@@ -146,7 +181,7 @@ export function StudentRoomView() {
     }
   };
 
-  const columns = [
+  const columns = activeTab === 'UG/PG' ? [
     { id: 'roomNo', label: 'Room', minWidth: 80 },
     { id: 'building', label: 'Building', minWidth: 100 },
     { id: 'semester', label: 'Semester', minWidth: 60 },
@@ -155,12 +190,34 @@ export function StudentRoomView() {
     { id: 'time', label: 'Time', minWidth: 100, format: (value: string) => value ? dayjs(`2000-01-01 ${value}`).format('hh:mm A') : '-' },
     { id: 'regNoFrom', label: 'Reg From', minWidth: 100 },
     { id: 'regNoTo', label: 'Reg To', minWidth: 100 },
+  ] : [
+    { id: 'roomNo', label: 'Room', minWidth: 80 },
+    { id: 'building', label: 'Building', minWidth: 100 },
+    { id: 'examName', label: 'Exam Name', minWidth: 150 },
+    { id: 'date', label: 'Date', minWidth: 120, format: (value: string) => value ? dayjs(value).format('DD/MM/YYYY') : '-' },
+    { id: 'time', label: 'Time', minWidth: 100, format: (value: string) => value ? dayjs(`2000-01-01 ${value}`).format('hh:mm A') : '-' },
+    { id: 'regNoFrom', label: 'Reg From', minWidth: 100 },
+    { id: 'regNoTo', label: 'Reg To', minWidth: 100 },
   ];
+
 
   return (
     <Box>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs 
+          value={activeTab} 
+          onChange={(_, newVal) => {
+            setActiveTab(newVal);
+            setPage(0);
+          }} 
+          aria-label="exam type tabs"
+        >
+          <Tab label="UG/PG Exams" value="UG/PG" />
+          <Tab label="Others Exams" value="Others" />
+        </Tabs>
+      </Box>
       <DataTable
-        title="Student Room Management"
+        title={activeTab === 'UG/PG' ? "UG/PG Student Rooms" : "Other Exam Student Rooms"}
         columns={columns}
         data={rooms}
         isLoading={stuRoomQuery.isLoading}
@@ -218,7 +275,7 @@ export function StudentRoomView() {
         onSubmit={handleSubmit(onSubmit)}
         isSaving={createMutation.isPending || updateMutation.isPending}
       >
-        <StudentRoomNewEditForm methods={methods} />
+        <StudentRoomNewEditForm methods={methods} floors={floors} subjects={subjects} papers={papers} buildings={buildings} />
       </ManagementModal>
     </Box>
   );

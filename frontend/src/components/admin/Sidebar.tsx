@@ -21,7 +21,11 @@ import {
   Room as RoomIcon,
   SupervisorAccount as TeacherIcon,
   ChevronLeft as ChevronLeftIcon,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  Book as BookIcon,
+  Description as DescriptionIcon,
+  Layers as LayersIcon,
+  Apartment as ApartmentIcon,
 } from '@mui/icons-material';
 import { useRouter, usePathname } from 'next/navigation';
 
@@ -40,6 +44,10 @@ const MENU_ITEMS = [
   { text: 'Users', icon: <PeopleIcon />, path: '/admin/users' },
   { text: 'Student Rooms', icon: <RoomIcon />, path: '/admin/student-rooms' },
   { text: 'Teacher Rooms', icon: <TeacherIcon />, path: '/admin/teacher-rooms' },
+  { text: 'Subjects', icon: <BookIcon />, path: '/admin/subjects' },
+  { text: 'Papers', icon: <DescriptionIcon />, path: '/admin/papers' },
+  { text: 'Floors', icon: <LayersIcon />, path: '/admin/floors' },
+  { text: 'Buildings', icon: <ApartmentIcon />, path: '/admin/buildings' },
 ];
 
 export default function Sidebar({ mobileOpen, onDrawerToggle, isCollapsed, onToggleCollapse }: SidebarProps) {

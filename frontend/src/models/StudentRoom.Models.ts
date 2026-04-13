@@ -1,6 +1,8 @@
 import { BaseModel } from "./Base.Models";
 
 export default class StudentRoomModel extends BaseModel {
+    public examType?: 'UG/PG' | 'Others';
+    public examName?: string;
     public roomNo!: string;
     public floor?: string;
     public building?: string;
