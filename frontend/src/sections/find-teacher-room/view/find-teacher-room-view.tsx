@@ -72,136 +72,180 @@ export default function FindTeacherRoomView() {
         mutation.mutate(data);
     };
 
+    const splitShifts = (items: TeacherRoomModel[]) => {
+        const entries: { item: TeacherRoomModel, shift: 1 | 2 }[] = [];
+        items.forEach(item => {
+            if (item.shift1) entries.push({ item, shift: 1 });
+            if (item.shift2) entries.push({ item, shift: 2 });
+        });
+        return entries;
+    };
+
+    const displayResults = result ? splitShifts(result) : [];
+
     return (
         <Box sx={{ 
             minHeight: '100vh', 
-            bgcolor: 'background.default',
-            background: 'linear-gradient(180deg, rgba(232, 26, 115, 0.05) 0%, rgba(232, 26, 115, 0) 100%)',
-            py: { xs: 6, md: 12 },
-            px: { xs: 2, md: 0 }
+            bgcolor: '#000',
+            backgroundImage: `url('/assets/bg-teacher.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            py: { xs: 4, md: 8 },
+            px: { xs: 2, md: 0 },
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+            '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                bgcolor: 'rgba(255, 255, 255, 0.2)', 
+                backdropFilter: 'blur(3px)'
+            }
         }}>
-            <Container maxWidth="md">
-                <Stack spacing={4} alignItems="center">
-                    <Box sx={{ textAlign: 'center', mb: { xs: 2, md: 4 } }}>
+            <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
+                <Stack spacing={4}>
+                    <Box sx={{ textAlign: 'center' }}>
                         <Typography 
-                            variant="h2" 
+                            variant="h3" 
                             component="h1" 
-                            gutterBottom 
-                            fontWeight={800} 
+                            fontWeight={900} 
                             sx={{ 
-                                background: 'linear-gradient(45deg, #d32f2f 30%, #ff5252 90%)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                fontSize: { xs: '2.25rem', sm: '3rem', md: '3.75rem' },
-                                letterSpacing: -1.5,
-                                lineHeight: 1.1
+                                color: '#000',
+                                fontSize: { xs: '2.5rem', sm: '3rem', md: '3.5rem' },
+                                letterSpacing: -2,
+                                mb: 1,
+                                textShadow: '0 2px 15px rgba(255,255,255,0.8)'
                             }}
                         >
-                            Teacher Room Finder
+                            Room Finder
                         </Typography>
+                        <Box sx={{ width: 40, height: 4, bgcolor: 'error.main', mx: 'auto', borderRadius: 2, mb: 2 }} />
                         <Typography 
-                          variant="h6" 
-                          color="text.secondary" 
+                          variant="body1" 
+                          color="text.primary" 
                           sx={{ 
-                            maxWidth: 600, 
+                            maxWidth: 320, 
                             mx: 'auto', 
-                            fontWeight: 400,
-                            fontSize: { xs: '1rem', md: '1.25rem' },
-                            lineHeight: 1.6,
-                            mt: 1
+                            lineHeight: 1.4,
+                            fontSize: '1.2rem',
+                            fontWeight: 800
                           }}
                         >
-                            Enter your name and the exam date to find your assigned duty room.
+                            Find your examination duty assignments in seconds.
                         </Typography>
                     </Box>
 
-                    <Card sx={{ 
-                        p: { xs: 4, md: 6 }, 
+                    <Paper elevation={0} sx={{ 
+                        p: { xs: 3, md: 5 }, 
                         width: '100%', 
-                        boxShadow: '0px 40px 80px rgba(0,0,0,0.08)', 
-                        borderRadius: 5,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: 'background.paper'
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        backdropFilter: 'blur(30px) saturate(200%)',
+                        WebkitBackdropFilter: 'blur(30px) saturate(200%)',
+                        borderRadius: 6,
+                        border: '1px solid rgba(255, 255, 255, 0.4)',
+                        boxShadow: '0 30px 60px -12px rgba(0,0,0,0.3)',
                     }}>
                         <form onSubmit={handleSubmit(onSubmit)}>
-                            <Grid container spacing={3}>
-                                <Grid size={{ xs: 12, md: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        label="Teacher Name"
-                                        placeholder="e.g. John Doe"
-                                        {...register('name')}
-                                        error={!!errors.name}
-                                        helperText={errors.name?.message}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <PersonIcon color="action" />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
-                                    />
-                                </Grid>
-                                <Grid size={{ xs: 12, md: 6 }}>
-                                    <TextField
-                                        fullWidth
-                                        label="Exam Date"
-                                        type="date"
-                                        InputLabelProps={{ shrink: true }}
-                                        {...register('date')}
-                                        error={!!errors.date}
-                                        helperText={errors.date?.message}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <CalendarIcon color="action" />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
-                                    />
-                                </Grid>
-                                <Grid size={{ xs: 12 }}>
-                                    <Button
-                                        fullWidth
-                                        size="large"
-                                        type="submit"
-                                        variant="contained"
-                                        disabled={mutation.isPending}
-                                        color="error"
-                                        sx={{ 
-                                            height: '56px', 
-                                            borderRadius: 3, 
-                                            fontSize: '1rem', 
-                                            fontWeight: 700,
-                                            boxShadow: '0px 10px 20px rgba(211, 47, 47, 0.3)',
-                                            textTransform: 'none'
-                                        }}
-                                    >
-                                        Find My Assignment
-                                    </Button>
-                                </Grid>
-                            </Grid>
+                            <Stack spacing={3}>
+                                <TextField
+                                    fullWidth
+                                    label="Name"
+                                    placeholder="Enter your full name"
+                                    {...register('name')}
+                                    error={!!errors.name}
+                                    helperText={errors.name?.message}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <PersonIcon sx={{ color: 'error.main', fontSize: 22 }} />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{ 
+                                        '& .MuiOutlinedInput-root': { 
+                                            borderRadius: 4, 
+                                            bgcolor: 'rgba(255,255,255,0.2)',
+                                            backdropFilter: 'blur(10px)',
+                                            '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
+                                        },
+                                        '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.3)' },
+                                        '& .MuiInputLabel-root': { color: 'rgba(0,0,0,0.7)', fontWeight: 600 }
+                                    }}
+                                />
+                                
+                                <TextField
+                                    fullWidth
+                                    label="Exam Date"
+                                    type="date"
+                                    InputLabelProps={{ shrink: true }}
+                                    {...register('date')}
+                                    error={!!errors.date}
+                                    helperText={errors.date?.message}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <CalendarIcon color="action" sx={{ fontSize: 20 }} />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{ 
+                                        '& .MuiOutlinedInput-root': { borderRadius: 3, bgcolor: '#F8FAFC' },
+                                        '& .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(0,0,0,0.08)' }
+                                    }}
+                                />
+                                
+                                <Button
+                                    fullWidth
+                                    size="large"
+                                    type="submit"
+                                    variant="contained"
+                                    disabled={mutation.isPending}
+                                    disableElevation
+                                    sx={{ 
+                                        height: '54px', 
+                                        borderRadius: 3, 
+                                        fontSize: '0.95rem', 
+                                        fontWeight: 700,
+                                        textTransform: 'none',
+                                        bgcolor: '#1A1A1A',
+                                        '&:hover': { bgcolor: '#333' }
+                                    }}
+                                >
+                                    {mutation.isPending ? 'Searching...' : 'Check My Duty'}
+                                </Button>
+                            </Stack>
                         </form>
-                    </Card>
+                    </Paper>
 
                     {mutation.isPending && <ResultSkeleton />}
 
-                    {searched && !mutation.isPending && (!result || result.length === 0) && (
+                    {searched && !mutation.isPending && displayResults.length === 0 && (
                         <Fade in={true}>
-                            <Paper sx={{ p: 5, width: '100%', textAlign: 'center', borderRadius: 4, bgcolor: 'rgba(255,255,255,0.8)' }}>
-                                <Typography variant="h5" fontWeight={700} color="error" gutterBottom>No Assignment Found</Typography>
-                                <Typography color="text.secondary">We couldn't find any duty room allotment for the provided name and date.</Typography>
-                            </Paper>
+                            <Box sx={{ 
+                                p: 6, 
+                                textAlign: 'center', 
+                                borderRadius: 4, 
+                                border: '1px dashed rgba(0,0,0,0.1)',
+                                bgcolor: 'rgba(255,255,255,0.5)'
+                            }}>
+                                <Typography variant="h6" fontWeight={700} color="text.primary" gutterBottom>No Duties Found</Typography>
+                                <Typography variant="body2" color="text.secondary">We couldn't find any assignments for these details. Please double-check the spelling of your name.</Typography>
+                            </Box>
                         </Fade>
                     )}
 
-                    {result && !mutation.isPending && (
-                        <Stack spacing={3} sx={{ width: '100%' }}>
-                             {result.map((item, idx) => (
-                                 <ResultCard key={idx} result={item} />
+                    {displayResults.length > 0 && !mutation.isPending && (
+                        <Stack spacing={2.5} sx={{ width: '100%' }}>
+                            <Typography variant="overline" color="text.disabled" fontWeight={800} sx={{ textAlign: 'center', letterSpacing: 2 }}>
+                                {displayResults.length} {displayResults.length === 1 ? 'Duty' : 'Duties'} Found
+                            </Typography>
+                             {displayResults.map((entry, idx) => (
+                                 <ResultCard key={idx} result={entry.item} shiftType={entry.shift} />
                              ))}
                         </Stack>
                     )}
