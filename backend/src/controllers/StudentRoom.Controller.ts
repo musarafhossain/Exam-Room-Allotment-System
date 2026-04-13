@@ -6,11 +6,14 @@ class StudentRoomController {
     getStudentRooms = async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
+        const examType = (req.query.examType as string) || 'UG/PG';
         const skip = (page - 1) * limit;
 
-        const rooms = await StudentRoomModel.find().skip(skip).limit(limit);
+        const query = { examType };
 
-        const total = await StudentRoomModel.countDocuments();
+        const rooms = await StudentRoomModel.find(query).skip(skip).limit(limit);
+
+        const total = await StudentRoomModel.countDocuments(query);
         const lastPage = Math.ceil(total / limit);
 
         res.json({
@@ -43,9 +46,13 @@ class StudentRoomController {
     }
 
     createStudentRoom = async (req: Request, res: Response) => {
-        const { roomNo, roomName, floor, building, subject, semester, time, date, regNoFrom, regNoTo, paper } = req.body;
+        const { roomNo, roomName, floor, building, subject, semester, time, date, regNoFrom, regNoTo, paper, examType, examName } = req.body;
 
-        const roomExists = await StudentRoomModel.findOne({ roomNo, date, regNoFrom, regNoTo, subject, semester, time, paper });
+        const query: any = { roomNo, date, regNoFrom, regNoTo, time };
+        if (examType === 'UG/PG') { query.subject = subject; query.semester = semester; query.paper = paper; }
+        if (examType === 'Others') { query.examName = examName; }
+
+        const roomExists = await StudentRoomModel.findOne(query);
 
         if (roomExists) {
             return res.status(400).json({
@@ -65,7 +72,9 @@ class StudentRoomController {
             date,
             regNoFrom,
             regNoTo,
-            paper
+            paper,
+            examType,
+            examName
         });
 
         await room.save();
@@ -79,7 +88,7 @@ class StudentRoomController {
 
     updateStudentRoom = async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { roomNo, floor, building, subject, semester, time, date, regNoFrom, regNoTo, paper } = req.body;
+        const { roomNo, floor, building, subject, semester, time, date, regNoFrom, regNoTo, paper, examType, examName } = req.body;
 
         const room = await StudentRoomModel.findById(id);
 
@@ -90,7 +99,11 @@ class StudentRoomController {
             });
         }
 
-        const roomExists = await StudentRoomModel.findOne({ roomNo, date, regNoFrom, regNoTo, subject, semester, time, paper, _id: { $ne: new Types.ObjectId(id as string) } });
+        const query: any = { roomNo, date, regNoFrom, regNoTo, time, _id: { $ne: new Types.ObjectId(id as string) } };
+        if (examType === 'UG/PG') { query.subject = subject; query.semester = semester; query.paper = paper; }
+        if (examType === 'Others') { query.examName = examName; }
+
+        const roomExists = await StudentRoomModel.findOne(query);
 
         if (roomExists) {
             return res.status(400).json({
@@ -109,6 +122,8 @@ class StudentRoomController {
         if (regNoFrom) room.regNoFrom = regNoFrom;
         if (regNoTo) room.regNoTo = regNoTo;
         if (paper) room.paper = paper;
+        if (examType) room.examType = examType;
+        if (examName !== undefined) room.examName = examName;
 
         await room.save();
 

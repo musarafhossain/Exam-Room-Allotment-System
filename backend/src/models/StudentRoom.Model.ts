@@ -7,18 +7,15 @@ const studentRoomSchema = new mongoose.Schema({
     },
     floor: String,
     building: String,
-    subject: {
+    examType: {
         type: String,
-        required: true
+        enum: ['UG/PG', 'Others'],
+        default: 'UG/PG'
     },
-    paper: {
-        type: String,
-        required: true
-    },
-    semester: {
-        type: Number,
-        required: true
-    },
+    examName: String,
+    subject: String,
+    paper: String,
+    semester: Number,
     time: {
         type: String,
         required: true

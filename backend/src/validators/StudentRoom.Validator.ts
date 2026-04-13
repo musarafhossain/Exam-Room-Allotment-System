@@ -2,12 +2,14 @@ import { z } from "zod";
 
 class StudentRoomValidator {
     createStudentRoomSchema = z.object({
+        examType: z.enum(['UG/PG', 'Others']).optional().default('UG/PG'),
+        examName: z.string().optional(),
         roomNo: z.string().min(1, "Room number is required"),
         floor: z.string().optional(),
         building: z.string().optional(),
-        subject: z.string().min(1, "Subject is required"),
-        paper: z.string().min(1, "Paper is required"),
-        semester: z.number().min(1, "Semester is required"),
+        subject: z.string().optional(),
+        paper: z.string().optional(),
+        semester: z.number().optional(),
         time: z.string().min(1, "Time is required"),
         date: z.coerce.date(),
         regNoFrom: z.string().min(1, "regNoFrom is required"),
@@ -15,12 +17,14 @@ class StudentRoomValidator {
     });
 
     updateStudentRoomSchema = z.object({
+        examType: z.enum(['UG/PG', 'Others']).optional(),
+        examName: z.string().optional(),
         roomNo: z.string().min(1).optional(),
         floor: z.string().optional(),
         building: z.string().optional(),
-        subject: z.string().min(1).optional(),
-        paper: z.string().min(1).optional(),
-        semester: z.number().min(1).optional(),
+        subject: z.string().optional(),
+        paper: z.string().optional(),
+        semester: z.number().optional(),
         time: z.string().min(1).optional(),
         date: z.coerce.date().optional(),
         regNoFrom: z.string().min(1).optional(),
