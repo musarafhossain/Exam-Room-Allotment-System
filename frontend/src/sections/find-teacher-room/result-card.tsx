@@ -11,13 +11,13 @@ import {
   Grow 
 } from '@mui/material';
 import { 
-  Room as RoomIcon,
-  Business as BuildingIcon,
-  Layers as FloorIcon,
+  Assignment as AssignmentIcon,
   AccessTime as TimeIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  Event as EventIcon
 } from '@mui/icons-material';
 import { TeacherRoomModel } from 'models';
+import dayjs from 'dayjs';
 
 interface ResultCardProps {
   result: TeacherRoomModel;
@@ -53,11 +53,11 @@ export default function ResultCard({ result }: ResultCardProps) {
               justifyContent: 'center',
               boxShadow: '0 10px 20px rgba(26, 115, 232, 0.1)'
             }}>
-              <RoomIcon sx={{ fontSize: { xs: 32, md: 40 } }} />
+              <AssignmentIcon sx={{ fontSize: { xs: 32, md: 40 } }} />
             </Box>
             <Box>
-              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: -1, fontSize: { xs: '1.75rem', md: '2.5rem' } }}>Room Allotted</Typography>
-              <Typography color="text.secondary" sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}>We successfully located your assigned examination room.</Typography>
+              <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: -1, fontSize: { xs: '1.75rem', md: '2.5rem' } }}>Duty Assigned</Typography>
+              <Typography color="text.secondary" sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}>We successfully located your duty assignment for the day.</Typography>
             </Box>
           </Box>
           
@@ -65,21 +65,32 @@ export default function ResultCard({ result }: ResultCardProps) {
 
           <Grid container spacing={4}>
             <ResultItem icon={<PersonIcon />} label="Teacher Name" value={result.name} highlight />
-            <ResultItem icon={<RoomIcon />} label="Room Number" value={result.roomNo} highlight color="secondary" />
-            <ResultItem icon={<FloorIcon />} label="Floor" value={result.floor || 'N/A'} />
-            <ResultItem icon={<BuildingIcon />} label="Building" value={result.building || 'N/A'} />
-            <ResultItem 
-              icon={<TimeIcon />} 
-              label="Exam Time" 
-              value={result.time || 'N/A'} 
-              highlight 
-              color="primary" 
-            />
+            <ResultItem icon={<EventIcon />} label="Date" value={dayjs(result.date).format('MMMM DD, YYYY')} highlight color="secondary" />
+            
+            {result.shift1 && (
+              <ResultItem 
+                icon={<TimeIcon />} 
+                label="Shift 1" 
+                value={`${result.shift1Start || '10:00'} - ${result.shift1End || '13:00'}`} 
+                highlight 
+                color="primary" 
+              />
+            )}
+            
+            {result.shift2 && (
+              <ResultItem 
+                icon={<TimeIcon />} 
+                label="Shift 2" 
+                value={`${result.shift2Start || '14:00'} - ${result.shift2End || '17:00'}`} 
+                highlight 
+                color="secondary" 
+              />
+            )}
           </Grid>
           
           <Box sx={{ mt: 2, p: 3, bgcolor: 'info.lighter', borderRadius: 3, display: 'flex', alignItems: 'flex-start', gap: 2 }}>
             <Typography variant="body2" color="info.main" fontWeight={600}>
-              Note: Please arrive at the room at least 15 minutes before the exam starts to ensure all arrangements are in place.
+              Note: Please arrive at the duty location at least 15 minutes before your shift starts.
             </Typography>
           </Box>
         </Stack>
