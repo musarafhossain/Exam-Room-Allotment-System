@@ -4,22 +4,15 @@ import { Types } from "mongoose";
 
 class TeacherRoomController {
     getTeacherRooms = async (req: Request, res: Response) => {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
-        const skip = (page - 1) * limit;
-
-        const rooms = await TeacherRoomModel.find().skip(skip).limit(limit);
+        const rooms = await TeacherRoomModel.find();
 
         const total = await TeacherRoomModel.countDocuments();
-        const lastPage = Math.ceil(total / limit);
 
         res.json({
             success: true,
             message: "Teacher rooms fetched successfully",
             items: rooms,
-            total,
-            currentPage: page,
-            lastPage
+            total
         });
     }
 
@@ -43,38 +36,48 @@ class TeacherRoomController {
     }
 
     createTeacherRoom = async (req: Request, res: Response) => {
-        const { name, roomNo, floor, building, time, date } = req.body;
+        const { dates, teachers } = req.body;
 
-        const roomExists = await TeacherRoomModel.findOne({ name, roomNo, date, time });
-
-        if (roomExists) {
-            return res.status(400).json({
-                success: false,
-                message: "Room assignment already exists"
-            });
+        const newRecords = [];
+        
+        for (const teacher of teachers) {
+            for (let i = 0; i < dates.length; i++) {
+                const dateObj = dates[i];
+                if (!teacher.assignments || !teacher.assignments[i]) continue;
+                
+                const assignment = teacher.assignments[i];
+                
+                // We store the assignment even if shifts are false so the teacher is tracked
+                if (dateObj.date && teacher.name) {
+                    newRecords.push({
+                        name: teacher.name,
+                        date: new Date(dateObj.date),
+                        shift1Start: dateObj.shift1Start,
+                        shift1End: dateObj.shift1End,
+                        shift2Start: dateObj.shift2Start,
+                        shift2End: dateObj.shift2End,
+                        shift1: assignment.shift1,
+                        shift2: assignment.shift2
+                    });
+                }
+            }
         }
 
-        const room = new TeacherRoomModel({
-            name,
-            roomNo,
-            floor,
-            building,
-            time,
-            date,
-        });
-
-        await room.save();
+        // Clear out existing records to perform a full state synchronization ensuring deletions carry through
+        await TeacherRoomModel.deleteMany({});
+        
+        const created = await TeacherRoomModel.insertMany(newRecords);
 
         res.json({
             success: true,
-            message: "Teacher room created successfully",
-            data: room
+            message: "Teacher room assignments created successfully",
+            data: created
         });
     }
 
     updateTeacherRoom = async (req: Request, res: Response) => {
         const { id } = req.params;
-        const { name, roomNo, floor, building, time, date } = req.body;
+        const { name, date, shift1Start, shift1End, shift2Start, shift2End, shift1, shift2 } = req.body;
 
         const room = await TeacherRoomModel.findById(id);
 
@@ -85,21 +88,14 @@ class TeacherRoomController {
             });
         }
 
-        const roomExists = await TeacherRoomModel.findOne({ name, roomNo, date, time, _id: { $ne: new Types.ObjectId(id as string) } });
-
-        if (roomExists) {
-            return res.status(400).json({
-                success: false,
-                message: "Room assignment already exists"
-            });
-        }
-
-        if (name) room.name = name as any;
-        if (roomNo) room.roomNo = roomNo;
-        if (floor) room.floor = floor;
-        if (building) room.building = building;
-        if (time) room.time = time;
-        if (date) room.date = date;
+        if (name !== undefined) room.name = name;
+        if (date !== undefined) room.date = date;
+        if (shift1Start !== undefined) room.shift1Start = shift1Start;
+        if (shift1End !== undefined) room.shift1End = shift1End;
+        if (shift2Start !== undefined) room.shift2Start = shift2Start;
+        if (shift2End !== undefined) room.shift2End = shift2End;
+        if (shift1 !== undefined) room.shift1 = shift1;
+        if (shift2 !== undefined) room.shift2 = shift2;
 
         await room.save();
 
@@ -144,15 +140,23 @@ class TeacherRoomController {
             }
 
             // Alike search (partial match, case-insensitive)
+            // also need to match date exactly or by ignoring time?
+            // Since inputDate is typically just the day, let's match the date 
+            const startOfDay = new Date(inputDate);
+            startOfDay.setUTCHours(0,0,0,0);
+            
+            const endOfDay = new Date(inputDate);
+            endOfDay.setUTCHours(23,59,59,999);
+
             const rooms = await TeacherRoomModel.find({
                 name: { $regex: name, $options: "i" },
-                date: inputDate
+                date: { $gte: startOfDay, $lte: endOfDay }
             });
 
             if (!rooms || rooms.length === 0) {
                 return res.status(404).json({
                     success: false,
-                    message: `No exam rooms found for teacher name like "${name}" on date ${inputDate.toDateString()}`
+                    message: `No exam room assignments found for teacher name like "${name}" on date ${inputDate.toDateString()}`
                 });
             }
 

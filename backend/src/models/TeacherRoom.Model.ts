@@ -5,19 +5,29 @@ const teacherRoomSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    roomNo: {
-        type: String,
-        required: true
-    },
-    floor: String,
-    building: String,
-    time: {
-        type: String,
-        required: true
-    },
     date: {
         type: Date,
         required: true
+    },
+    shift1Start: {
+        type: String
+    },
+    shift1End: {
+        type: String
+    },
+    shift2Start: {
+        type: String
+    },
+    shift2End: {
+        type: String
+    },
+    shift1: {
+        type: Boolean,
+        default: false
+    },
+    shift2: {
+        type: Boolean,
+        default: false
     },
     createdAt: {
         type: Date,
