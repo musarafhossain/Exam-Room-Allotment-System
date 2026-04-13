@@ -189,12 +189,12 @@ class StudentRoomController {
             const dayBeforeExam = new Date(examDate);
             dayBeforeExam.setDate(dayBeforeExam.getDate() - 1);
 
-            /* if (today < dayBeforeExam) {
+            if (today < dayBeforeExam) {
                 return res.status(403).json({
                     success: false,
                     message: "Room info is available only from day before the exam."
                 });
-            } */
+            }
 
             // ✅ Fetch by date only (fast filter)
             const rooms = await StudentRoomModel.find({
