@@ -49,15 +49,6 @@ export default class StudentRoomService extends BaseService {
         });
     }
 
-    public static findStudentRoom(params = {}): Promise<ResponseModel<StudentRoomModel>> {
-        StudentRoomService.initCancelToken();
-        return new Promise((resolve, reject) => {
-            this.Http.post(`${this.API_PREFIX}find-student-room`, params, { cancelToken: StudentRoomService.source?.token })
-                .then((res) => resolve(res?.data))
-                .catch((err) => reject(err));
-        });
-    }
-
     public static bulkDelete(ids: string[]): Promise<ResponseModel<any>> {
         return new Promise((resolve, reject) => {
             this.Http.post(`${this.API_PREFIX}bulk-delete`, { ids })
