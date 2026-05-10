@@ -25,8 +25,8 @@ interface Config {
 
 const config: Config = {
     frontendOrigin1: process.env.FRONTEND_ORIGIN_1 || 'http://localhost:8081',
-    frontendOrigin2: process.env.FRONTEND_ORIGIN_2 || 'http://localhost:8081',
-    frontendOrigin3: process.env.FRONTEND_ORIGIN_3 || 'http://localhost:8081',
+    frontendOrigin2: process.env.FRONTEND_ORIGIN_2 || 'http://localhost:8082',
+    frontendOrigin3: process.env.FRONTEND_ORIGIN_3 || 'http://localhost:8083',
     port: Number(process.env.PORT) || 3000,
     nodeEnv: process.env.NODE_ENV || 'development',
     jwtTokenSecretKey: process.env.JWT_TOKEN_SECRET_KEY || 'examroomallotmentdb',
@@ -36,7 +36,7 @@ const config: Config = {
     },
     nodemailer: {
         user: process.env.NODEMAILER_USER || '',
-        pass: process.env.NODEMAILER_PASS || ''
+        pass: process.env.NODEMAILER_PASS || '' 
     }
 };
 
