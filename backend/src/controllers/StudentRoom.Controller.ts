@@ -190,7 +190,7 @@ class StudentRoomController {
             if (!room) {
                 return res.status(404).json({
                     success: false,
-                    message: "No exam room found for this registration number"
+                    message: `No exam room found for the registration number on ${new Date(new Date().getTime() + 1).toDateString()}`
                 });
             }
 
