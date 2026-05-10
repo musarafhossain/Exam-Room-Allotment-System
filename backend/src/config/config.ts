@@ -7,6 +7,11 @@ interface DatabaseConfig {
     databaseName: string;
 }
 
+interface NodemailerConfig {
+    user: string;
+    pass: string;
+}
+
 interface Config {
     frontendOrigin1: string;
     frontendOrigin2: string;
@@ -15,6 +20,7 @@ interface Config {
     nodeEnv: string;
     jwtTokenSecretKey: string;
     database: DatabaseConfig;
+    nodemailer: NodemailerConfig;
 }
 
 const config: Config = {
@@ -27,6 +33,10 @@ const config: Config = {
     database: {
         databaseUrl: process.env.DATABASE_URL || 'mongodb://localhost:27017',
         databaseName: process.env.DATABASE_NAME || 'examroomallotmentdb'
+    },
+    nodemailer: {
+        user: process.env.NODEMAILER_USER || '',
+        pass: process.env.NODEMAILER_PASS || ''
     }
 };
 
