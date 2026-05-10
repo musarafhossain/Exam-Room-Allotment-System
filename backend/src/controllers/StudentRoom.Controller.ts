@@ -170,9 +170,12 @@ class StudentRoomController {
             // ✅ Convert to BigInt (SAFE for 20 digits)
             const regNoBig = BigInt(regNo);
 
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
             // ✅ Fetch by date only (fast filter)
             const rooms = await StudentRoomModel.find({
-                date: new Date(new Date().getTime() + 1)
+                date: today
             });
 
             // ✅ BigInt comparison (NO precision loss)
@@ -190,7 +193,7 @@ class StudentRoomController {
             if (!room) {
                 return res.status(404).json({
                     success: false,
-                    message: `No exam room found for the registration number on ${new Date(new Date().getTime() + 1).toDateString()} at ${new Date().toTimeString()}`
+                    message: `No exam room found for the registration number on ${today.toDateString()}`
                 });
             }
 
