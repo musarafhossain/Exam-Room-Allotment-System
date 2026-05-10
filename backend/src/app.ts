@@ -2,16 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import { UserRouter, AuthRouter, StudentRoomRouter, TeacherRoomRouter, SubjectRouter, PaperRouter, FloorRouter, BuildingRouter } from './routes';
 import connectDB from './config/db';
-import config from './config/config';
 
 const app = express();
 
 const corsOptions = {
-  origin: [
-    config.frontendOrigin1,
-    config.frontendOrigin2,
-    config.frontendOrigin3
-  ],
+  origin: '*',
   credentials: true,
   optionsSuccessStatus: 200,
 };
