@@ -40,7 +40,8 @@ class AuthController {
     logout = async (req: Request, res: Response) => {
         const user = req.user;
 
-        await UserJwtTokenModel.deleteMany({ userId: user?._id });
+        const token = req.token;
+        await UserJwtTokenModel.deleteOne({ jwtToken: token });
 
         res.json({
             success: true,

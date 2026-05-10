@@ -49,6 +49,7 @@ const verifyJwtToken = async (req: Request, res: Response, next: NextFunction) =
         }
 
         req.user = user;
+        req.token = jwtToken;
 
         next();
 

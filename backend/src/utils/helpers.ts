@@ -19,7 +19,6 @@ export const generateJwtToken = async (user: IUser) => {
             config.jwtTokenSecretKey,
         );
 
-        await UserJwtTokenModel.deleteMany({ userId: user._id });
 
         await UserJwtTokenModel.create({ userId: user._id, jwtToken });
 
