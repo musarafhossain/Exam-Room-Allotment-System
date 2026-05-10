@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { UserRouter, AuthRouter, StudentRoomRouter, TeacherRoomRouter, SubjectRouter, PaperRouter, FloorRouter, BuildingRouter } from './routes';
+import { UserRouter, AuthRouter, StudentRoomRouter, TeacherRoomRouter, SubjectRouter, PaperRouter, FloorRouter, BuildingRouter, SettingRouter } from './routes';
 import connectDB from './config/db';
 
 const app = express();
@@ -30,5 +30,6 @@ app.use('/api/v1/papers', PaperRouter);
 app.use('/api/v1/floors', FloorRouter);
 app.use('/api/v1/buildings', BuildingRouter);
 app.use('/api/v1/auth', AuthRouter);
+app.use('/api/v1/settings', SettingRouter);
 
 export default app;

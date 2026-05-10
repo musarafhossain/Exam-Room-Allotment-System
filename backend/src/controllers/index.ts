@@ -6,6 +6,7 @@ import SubjectController from "./Subject.Controller"
 import PaperController from "./Paper.Controller"
 import FloorController from "./Floor.Controller"
 import BuildingController from "./Building.Controller"
+import SettingController from "./Setting.Controller"
 
 export {
     UserController,
@@ -16,4 +17,5 @@ export {
     PaperController,
     FloorController,
     BuildingController,
+    SettingController,
 }

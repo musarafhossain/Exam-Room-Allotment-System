@@ -7,6 +7,8 @@ import SubjectModel from "./Subject.Model";
 import PaperModel from "./Paper.Model";
 import FloorModel from "./Floor.Model";
 import BuildingModel from "./Building.Model";
+import SettingModel from "./Setting.Model";
+import { ISetting } from "./Setting.Model";
 
 export {
     UserModel,
@@ -18,4 +20,6 @@ export {
     PaperModel,
     FloorModel,
     BuildingModel,
+    SettingModel,
+    ISetting,
 }

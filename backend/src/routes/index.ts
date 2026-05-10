@@ -6,6 +6,7 @@ import SubjectRouter from "./Subject.Routes";
 import PaperRouter from "./Paper.Routes";
 import FloorRouter from "./Floor.Routes";
 import BuildingRouter from "./Building.Routes";
+import SettingRouter from "./Setting.Routes";
 
 export {
     UserRouter,
@@ -16,4 +17,5 @@ export {
     PaperRouter,
     FloorRouter,
     BuildingRouter,
+    SettingRouter,
 }
