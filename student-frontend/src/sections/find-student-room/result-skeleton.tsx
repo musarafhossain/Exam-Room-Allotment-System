@@ -19,6 +19,7 @@ export default function ResultSkeleton() {
         borderColor: 'divider',
         bgcolor: 'rgba(255, 255, 255, 0.4)',
         backdropFilter: 'blur(10px)',
+        mt: 4,
       }}
     >
       <Stack spacing={3}>

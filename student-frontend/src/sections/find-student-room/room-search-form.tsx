@@ -14,7 +14,7 @@ import {
 } from '@mui/icons-material';
 
 export const searchSchema = zod.object({
-    regNo: zod.string().min(1, 'Registration number is required'),
+    regNo: zod.string().min(1, 'Registration number is required').max(20, 'Maximum 20 digits allowed'),
 });
 
 export type SearchFormValues = zod.infer<typeof searchSchema>;
@@ -52,6 +52,7 @@ export default function RoomSearchForm({ onSubmit, isPending }: RoomSearchFormPr
                                 }
                             },
                             input: {
+                                inputProps: { maxLength: 20 },
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         <SearchIcon sx={{ color: 'primary.main', fontSize: 22 }} />

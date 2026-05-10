@@ -66,8 +66,8 @@ export default function FindStudentRoomView() {
             }
         }}>
             <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
-                <Stack spacing={4} sx={{ pb: 10 }}>
-                    <Box sx={{ textAlign: 'center' }}>
+                <Stack sx={{ pb: 10 }}>
+                    <Box sx={{ textAlign: 'center', mt: 4 }}>
                         <Box
                             component="img"
                             src="/assets/images/logo.png"
