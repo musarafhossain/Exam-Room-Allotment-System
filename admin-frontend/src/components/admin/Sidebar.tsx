@@ -45,7 +45,6 @@ interface SidebarProps {
 }
 
 const MENU_ITEMS = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Users', icon: <PeopleIcon />, path: '/users' },
   { text: 'Student Rooms', icon: <RoomIcon />, path: '/student-rooms' },
   { text: 'Teacher Rooms', icon: <TeacherIcon />, path: '/teacher-rooms' },

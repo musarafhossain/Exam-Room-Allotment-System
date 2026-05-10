@@ -213,13 +213,19 @@ export default function DataTable({
           <TableBody>
             {isLoading ? (
               [...Array(5)].map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell padding="checkbox"><Skeleton variant="rectangular" width={20} height={20} /></TableCell>
-                  {columns.map((col, i) => (
-                    <TableCell key={i}><Skeleton variant="text" /></TableCell>
-                  ))}
-                  <TableCell align="right"><Skeleton variant="circular" width={30} height={30} sx={{ ml: 'auto' }} /></TableCell>
-                </TableRow>
+                  <TableRow key={index}>
+                    <TableCell padding="checkbox" sx={{ pl: 2 }}>
+                      <Skeleton variant="rectangular" width={20} height={20} />
+                    </TableCell>
+                    {columns.map((col, i) => (
+                      <TableCell key={i} sx={{ pl: 5 }}>
+                        <Skeleton variant="text" width="80%" />
+                      </TableCell>
+                    ))}
+                    <TableCell align="right" sx={{ pr: 2 }}>
+                      <Skeleton variant="circular" width={30} height={30} sx={{ ml: 'auto' }} />
+                    </TableCell>
+                  </TableRow>
               ))
             ) : data.length === 0 ? (
               <TableRow>

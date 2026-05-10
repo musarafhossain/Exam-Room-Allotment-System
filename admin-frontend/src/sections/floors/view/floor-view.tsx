@@ -16,7 +16,7 @@ import FloorNewEditForm, { floorSchema, type FloorFormValues } from 'sections/fl
 export function FloorView() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<FloorModel | null>(null);

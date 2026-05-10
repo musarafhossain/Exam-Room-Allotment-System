@@ -13,51 +13,38 @@ import {
     TextField,
     Typography,
     Stack,
-    Alert,
-    CircularProgress,
     IconButton,
-    InputAdornment,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
-import { useAuth } from 'hooks';
 import { AuthService } from 'services';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
-const loginSchema = zod.object({
-    email: zod.email('Invalid email address'),
-    password: zod.string().min(1, 'Password is required'),
+const forgotPasswordSchema = zod.object({
+    email: zod.string().email('Invalid email address'),
 });
 
-type LoginFormValues = zod.infer<typeof loginSchema>;
+type ForgotPasswordFormValues = zod.infer<typeof forgotPasswordSchema>;
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
     const router = useRouter();
-    const { login, isAuthenticated } = useAuth();
-
-    // Redirect if already authenticated
-    if (isAuthenticated) {
-        router.replace('/');
-    }
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginFormValues>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<ForgotPasswordFormValues>({
+        resolver: zodResolver(forgotPasswordSchema),
     });
 
     const mutation = useMutation({
-        mutationFn: (data: LoginFormValues) => AuthService.login(data),
+        mutationFn: (data: ForgotPasswordFormValues) => AuthService.forgotPassword(data),
         onSuccess: (res) => {
             if (res.success) {
-                login(res?.data!.user, res?.data!.token);
-                toast.success('Login successful!');
-                router.push('/');
+                toast.success('Password reset link sent to your email!');
             } else {
-                toast.error(res.message || 'Login failed');
+                toast.error(res.message || 'Failed to send reset link');
             }
         },
         onError: (error: any) => {
@@ -65,9 +52,7 @@ export default function LoginPage() {
         },
     });
 
-    const [showPassword, setShowPassword] = React.useState(false);
-
-    const onSubmit = (data: LoginFormValues) => {
+    const onSubmit = (data: ForgotPasswordFormValues) => {
         mutation.mutate(data);
     };
 
@@ -95,12 +80,26 @@ export default function LoginPage() {
                     }}
                 >
                     <Stack spacing={4}>
-                        <Box sx={{ textAlign: 'center' }}>
+                        <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                            <IconButton 
+                                component={Link} 
+                                href="/login" 
+                                sx={{ 
+                                    position: 'absolute', 
+                                    left: -10, 
+                                    top: -10,
+                                    color: 'text.secondary',
+                                    '&:hover': { color: 'primary.main', bgcolor: 'rgba(26, 115, 232, 0.05)' }
+                                }}
+                            >
+                                <ArrowBackIcon />
+                            </IconButton>
+                            
                             <Box 
                                 sx={{ 
-                                    width: 80, 
-                                    height: 80, 
-                                    borderRadius: '24px', 
+                                    width: 64, 
+                                    height: 64, 
+                                    borderRadius: '20px', 
                                     display: 'flex', 
                                     alignItems: 'center', 
                                     justifyContent: 'center',
@@ -109,60 +108,30 @@ export default function LoginPage() {
                                 }}
                             >
                                 <img 
-                                    src="/assets/images/logo.png" 
+                                     src="/assets/images/logo.png" 
                                     alt="Institution Logo" 
-                                    style={{ width: '80px', height: '80px', objectFit: 'contain' }} 
+                                    style={{ width: '64px', height: '64px', objectFit: 'contain' }} 
                                 />
                             </Box>
+
                             <Typography variant="h4" fontWeight={900} color="text.primary" gutterBottom>
-                                Welcome Back
+                                Reset Password
                             </Typography>
                             <Typography variant="body1" color="text.secondary">
-                                Please enter your admin credentials
+                                Enter your email and we'll send you reset instructions
                             </Typography>
                         </Box>
-
-                        {mutation.isError && (
-                            <Alert severity="error" sx={{ borderRadius: 2 }}>
-                                {(mutation.error as any)?.response?.data?.message || 'Login failed'}
-                            </Alert>
-                        )}
 
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <Stack spacing={3}>
                                 <TextField
                                     fullWidth
                                     label="Email Address"
+                                    placeholder="e.g. admin@university.edu"
                                     variant="outlined"
                                     {...register('email')}
                                     error={!!errors.email}
                                     helperText={errors.email?.message}
-                                    sx={{ 
-                                        '& .MuiOutlinedInput-root': { borderRadius: 3 },
-                                        bgcolor: 'rgba(255, 255, 255, 0.5)'
-                                    }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="Password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    variant="outlined"
-                                    {...register('password')}
-                                    error={!!errors.password}
-                                    helperText={errors.password?.message}
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    aria-label="toggle password visibility"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    edge="end"
-                                                >
-                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
                                     sx={{ 
                                         '& .MuiOutlinedInput-root': { borderRadius: 3 },
                                         bgcolor: 'rgba(255, 255, 255, 0.5)'
@@ -174,7 +143,6 @@ export default function LoginPage() {
                                     type="submit"
                                     variant="contained"
                                     disabled={mutation.isPending}
-                                    startIcon={mutation.isPending && <CircularProgress size={20} color="inherit" />}
                                     sx={{ 
                                         py: 1.8, 
                                         borderRadius: 3, 
@@ -184,11 +152,11 @@ export default function LoginPage() {
                                         boxShadow: '0 10px 20px rgba(26, 115, 232, 0.3)'
                                     }}
                                 >
-                                    {mutation.isPending ? 'Signing in...' : 'Sign In'}
+                                    {mutation.isPending ? 'Sending...' : 'Send Reset Link'}
                                 </Button>
 
-                                <Box sx={{ textAlign: 'center', mt: 1 }}>
-                                    <Link href="/forgot-password" style={{ textDecoration: 'none' }}>
+                                <Box sx={{ textAlign: 'center' }}>
+                                    <Link href="/login" style={{ textDecoration: 'none' }}>
                                         <Typography 
                                             variant="body2" 
                                             sx={{ 
@@ -197,7 +165,7 @@ export default function LoginPage() {
                                                 '&:hover': { textDecoration: 'underline' }
                                             }}
                                         >
-                                            Forgot Password?
+                                            Return to Sign In
                                         </Typography>
                                     </Link>
                                 </Box>

@@ -24,7 +24,7 @@ export default class UserService extends BaseService {
 
     public static update(id: string, params = {}): Promise<ResponseModel<UserModel>> {
         return new Promise((resolve, reject) => {
-            this.Http.patch(`${this.API_PREFIX}${id}`, params)
+            this.Http.put(`${this.API_PREFIX}${id}`, params)
                 .then((res) => resolve(res.data))
                 .catch((err) => reject(err));
         });

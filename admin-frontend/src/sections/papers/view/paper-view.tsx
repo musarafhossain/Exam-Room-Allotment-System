@@ -16,7 +16,7 @@ import PaperNewEditForm, { paperSchema, type PaperFormValues } from 'sections/pa
 export function PaperView() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState<PaperModel | null>(null);

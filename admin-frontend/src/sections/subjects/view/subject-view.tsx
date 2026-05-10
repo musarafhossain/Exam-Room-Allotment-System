@@ -16,7 +16,7 @@ import SubjectNewEditForm, { subjectSchema, type SubjectFormValues } from 'secti
 export function SubjectView() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<SubjectModel | null>(null);

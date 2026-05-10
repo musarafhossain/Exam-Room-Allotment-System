@@ -11,6 +11,7 @@ import {
   InputAdornment,
   Grid
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
@@ -31,7 +32,7 @@ type UserFormValues = zod.infer<typeof userSchema>;
 export default function UsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
@@ -119,6 +120,8 @@ export default function UsersPage() {
     { id: 'email', label: 'Email', minWidth: 170 },
   ];
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <Box>
       <DataTable
@@ -173,11 +176,24 @@ export default function UsersPage() {
           <TextField
             fullWidth
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             autoComplete="new-password"
             {...register('password')}
             error={!!errors.password}
             helperText={selectedUser ? "Leave empty to keep current password" : errors.password?.message}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </Stack>
       </ManagementModal>
