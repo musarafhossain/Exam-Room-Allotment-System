@@ -153,6 +153,19 @@ export default function LandingPage() {
                     <Typography variant="body2" color="text.secondary">
                         © {new Date().getFullYear()} Exam Room Allotment System. Built for academic excellence.
                     </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Design & Developed By{' '}
+                        <Typography
+                            component="a"
+                            href="https://www.linkedin.com/in/musrafhossain"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            variant="body2"
+                            sx={{ fontWeight: 700, color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                        >
+                            Musaraf Hossain
+                        </Typography>
+                    </Typography>
                 </Box>
             </Container>
         </Box>

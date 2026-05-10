@@ -11,6 +11,7 @@ import {
     Button,
     Card,
     Container,
+    Link,
     TextField,
     Typography,
     Stack,
@@ -249,6 +250,22 @@ export default function FindTeacherRoomView() {
                              ))}
                         </Stack>
                     )}
+
+                    {/* Developer Credit */}
+                    <Box sx={{ textAlign: 'center', pt: 2 }}>
+                        <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.6)' }}>
+                            Design & Developed By{' '}
+                            <Link
+                                href="https://www.linkedin.com/in/musrafhossain"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="hover"
+                                sx={{ fontWeight: 700, color: 'error.main' }}
+                            >
+                                Musaraf Hossain
+                            </Link>
+                        </Typography>
+                    </Box>
                 </Stack>
             </Container>
         </Box>

@@ -15,7 +15,8 @@ import {
   MenuItem,
   Container,
   Paper,
-  Divider
+  Divider,
+  ListItemIcon
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -24,6 +25,7 @@ import {
   Logout as LogoutIcon
 } from '@mui/icons-material';
 import Sidebar, { DRAWER_WIDTH, COLLAPSED_DRAWER_WIDTH } from './Sidebar';
+import Footer from '../common/Footer';
 import { useAuth } from '../../hooks';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@mui/material/styles';
@@ -181,13 +183,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           }),
         }}
       >
-        <Container maxWidth="xl" sx={{ p: 0 }}>
-          {children}
+        <Container maxWidth="xl" sx={{ p: 0, minHeight: 'calc(100vh - 160px)', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ flexGrow: 1 }}>
+            {children}
+          </Box>
+          <Footer />
         </Container>
       </Box>
     </Box>
   );
 }
-
-// Sub-component for Menu Items icons (used for type safety if needed)
-import { ListItemIcon } from '@mui/material';
