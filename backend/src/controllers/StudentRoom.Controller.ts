@@ -157,7 +157,7 @@ class StudentRoomController {
 
     findStudentRoom = async (req: Request, res: Response) => {
         try {
-            const { regNo, date } = req.body;
+            const { regNo } = req.body;
 
             // ✅ Validate regNo (must be numeric string)
             if (!/^\d+$/.test(regNo)) {
@@ -170,35 +170,9 @@ class StudentRoomController {
             // ✅ Convert to BigInt (SAFE for 20 digits)
             const regNoBig = BigInt(regNo);
 
-            // ✅ Validate date
-            const inputDate = new Date(date);
-            if (isNaN(inputDate.getTime())) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid date format"
-                });
-            }
-
-            // ✅ SECURITY: allow only from day-before exam
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const examDate = new Date(inputDate);
-            examDate.setHours(0, 0, 0, 0);
-
-            const dayBeforeExam = new Date(examDate);
-            dayBeforeExam.setDate(dayBeforeExam.getDate() - 1);
-
-            if (today < dayBeforeExam) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Room info is available only from day before the exam."
-                });
-            }
-
             // ✅ Fetch by date only (fast filter)
             const rooms = await StudentRoomModel.find({
-                date: inputDate
+                date: new Date(new Date().getTime() + 1)
             });
 
             // ✅ BigInt comparison (NO precision loss)
@@ -216,7 +190,7 @@ class StudentRoomController {
             if (!room) {
                 return res.status(404).json({
                     success: false,
-                    message: "No exam room found for this registration number on date " + inputDate.toDateString()
+                    message: "No exam room found for this registration number"
                 });
             }
 
