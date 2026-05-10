@@ -62,7 +62,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     logout();
-    router.push("/admin/login");
+    router.push("/login");
     handleProfileMenuClose();
   };
 
@@ -78,10 +78,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           ml: { md: `${currentDrawerWidth}px` },
           bgcolor: 'background.paper',
           color: 'text.primary',
-          boxShadow: 'none',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)', // Subtle bottom shadow
+          zIndex: (theme) => theme.zIndex.drawer - 1,
           transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,
@@ -104,10 +102,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </Typography>
 
           <Stack direction="row" spacing={1} alignItems="center">
-            <IconButton color="inherit">
-              <NotificationsIcon fontSize="small" />
-            </IconButton>
-
             <Button
               onClick={handleProfileMenuOpen}
               sx={{
@@ -118,15 +112,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' }
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 14 }}>
-                  {user?.name?.charAt(0) || 'U'}
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Avatar sx={{ 
+                  width: 36, 
+                  height: 36, 
+                  bgcolor: 'rgba(26, 115, 232, 0.1)', 
+                  color: 'primary.main',
+                  border: '2px solid',
+                  borderColor: 'primary.main',
+                  opacity: 0.9
+                }}>
+                  <AccountCircleIcon sx={{ fontSize: 28 }} />
                 </Avatar>
                 <Box sx={{ display: { xs: 'none', sm: 'block' }, textAlign: 'left' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', lineHeight: 1.2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1.2 }}>
                     {user?.name || "User"}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontWeight: 500 }}>
                     {user?.email}
                   </Typography>
                 </Box>
@@ -175,6 +177,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         sx={{
           flexGrow: 1,
           p: { xs: 2, md: 4 },
+          pb: { xs: 10, md: 10 }, // Extra padding for fixed footer
           width: { md: `calc(100% - ${currentDrawerWidth}px)` },
           mt: '64px',
           transition: theme.transitions.create(['width', 'margin'], {
@@ -187,8 +190,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Box sx={{ flexGrow: 1 }}>
             {children}
           </Box>
-          <Footer />
         </Container>
+
+        {/* Fixed Footer with Glassmorphism */}
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            right: 0,
+            width: { md: `calc(100% - ${currentDrawerWidth}px)`, xs: '100%' },
+            zIndex: theme.zIndex.appBar - 1,
+            transition: theme.transitions.create(['width', 'margin'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+          }}
+        >
+          <Footer />
+        </Box>
       </Box>
     </Box>
   );

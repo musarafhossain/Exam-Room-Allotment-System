@@ -24,7 +24,14 @@ import {
   CircularProgress,
   Skeleton
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon, Download as DownloadIcon, Upload as UploadIcon, FileDownloadOutlined as FileDownloadIcon } from '@mui/icons-material';
+import { 
+  Add as AddIcon, 
+  Delete as DeleteIcon, 
+  Download as DownloadIcon, 
+  Upload as UploadIcon, 
+  FileDownloadOutlined as FileDownloadIcon,
+  Cancel as CancelIcon 
+} from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -440,11 +447,29 @@ export function TeacherRoomView() {
       </Stack>
 
       <TableContainer component={Paper} sx={{
-        maxHeight: '100vh',
+        maxHeight: '100dvh',
         overflow: 'auto',
         width: '100%',
         boxShadow: '0px 4px 20px rgba(0,0,0,0.08)',
-        borderRadius: 2
+        borderRadius: 2,
+        '&::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: 'rgba(0,0,0,0.03)',
+          borderRadius: '10px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: 'rgba(26, 115, 232, 0.2)',
+          borderRadius: '10px',
+          border: '2px solid transparent',
+          backgroundClip: 'padding-box',
+          '&:hover': {
+            background: 'rgba(26, 115, 232, 0.4)',
+            backgroundClip: 'padding-box',
+          },
+        },
       }}>
         <Table stickyHeader size="small">
           <TableHead>
@@ -453,9 +478,10 @@ export function TeacherRoomView() {
                 minWidth: 250,
                 fontWeight: 'bold',
                 backgroundColor: '#fff',
-                zIndex: 3,
+                zIndex: 10,
                 position: 'sticky',
                 left: 0,
+                top: 0,
                 borderRight: '1px solid #e0e0e0'
               }}>
                 Teacher Name
@@ -471,8 +497,9 @@ export function TeacherRoomView() {
                     maxWidth: 175,
                     width: 175,
                     p: 1.5,
-                    position: 'relative',
-                    zIndex: 2
+                    position: 'sticky', // Fixed from relative
+                    zIndex: 10,
+                    top: 0
                   }}
                 >
                   <Tooltip title="Delete Date Column">
@@ -481,13 +508,15 @@ export function TeacherRoomView() {
                       onClick={() => deleteDate(idx)}
                       sx={{
                         position: 'absolute',
-                        top: 2,
-                        right: 2,
+                        top: 4,
+                        right: 4,
                         color: 'error.main',
+                        bgcolor: 'rgba(244, 67, 54, 0.08)',
+                        '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.15)' },
                         zIndex: 10
                       }}
                     >
-                      <DeleteIcon sx={{ fontSize: 16 }} />
+                      <CancelIcon sx={{ fontSize: 18 }} />
                     </IconButton>
                   </Tooltip>
                   <Stack spacing={1.5} alignItems="center" sx={{ mt: 1 }}>
@@ -554,9 +583,10 @@ export function TeacherRoomView() {
                 width: 60,
                 fontWeight: 'bold',
                 backgroundColor: '#fff',
-                zIndex: 3,
+                zIndex: 10,
                 position: 'sticky',
                 right: 0,
+                top: 0,
                 borderLeft: '1px solid #e0e0e0',
                 textAlign: 'center',
                 px: 1
@@ -612,9 +642,14 @@ export function TeacherRoomView() {
                       <IconButton
                         size="small"
                         onClick={() => deleteRow(rowIndex)}
-                        sx={{ color: 'error.light' }}
+                        sx={{ 
+                          color: 'error.main',
+                          bgcolor: 'rgba(244, 67, 54, 0.08)',
+                          '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.15)' },
+                          mr: 1
+                        }}
                       >
-                        <DeleteIcon fontSize="small" />
+                        <CancelIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <TextField

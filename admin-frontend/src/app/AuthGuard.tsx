@@ -20,7 +20,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       if (!isAuthenticated) {
         // Remember where we were going
         const returnUrl = encodeURIComponent(pathname);
-        router.replace(`/admin/login`);
+        router.replace(`/login`);
       } else {
         setAuthorized(true);
       }

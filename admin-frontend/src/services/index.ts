@@ -6,6 +6,7 @@ import SubjectService from "./SubjectService";
 import PaperService from "./PaperService";
 import FloorService from "./FloorService";
 import BuildingService from "./BuildingService";
+import SettingService from "./SettingService";
 
 export {
     AuthService,
@@ -16,4 +17,5 @@ export {
     PaperService,
     FloorService,
     BuildingService,
+    SettingService,
 }

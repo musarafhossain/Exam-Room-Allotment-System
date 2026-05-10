@@ -5,6 +5,7 @@ import SubjectModel from "./Subject.Models";
 import PaperModel from "./Paper.Models";
 import FloorModel from "./Floor.Models";
 import BuildingModel from "./Building.Models";
+import SettingModel from "./Setting.Models";
 
 export interface ResponseModel<T> extends Partial<PageModel<T>> {
   data?: T
@@ -29,4 +30,5 @@ export {
   PaperModel,
   FloorModel,
   BuildingModel,
+  type SettingModel,
 }

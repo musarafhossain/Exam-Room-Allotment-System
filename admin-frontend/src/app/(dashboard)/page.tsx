@@ -19,8 +19,8 @@ import {
     TrendingUp as TrendingUpIcon,
     ArrowForward as ArrowForwardIcon
 } from '@mui/icons-material';
-import StatCard from "../../../../components/admin/StatCard";
-import { useAuth } from "../../../../hooks";
+import StatCard from "../../components/admin/StatCard";
+import { useAuth } from "../../hooks";
 
 export default function DashboardPage() {
     const { user } = useAuth();

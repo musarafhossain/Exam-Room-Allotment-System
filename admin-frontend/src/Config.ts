@@ -10,7 +10,7 @@ export type ConfigValue = {
 
 export const Config: ConfigValue = {
   APP: {
-    NAME: 'Exam Room Allotment System',
+    NAME: 'Exam Room Allotment System Admin',
     VERSION: 'v1.0.0'
   },
   API: {

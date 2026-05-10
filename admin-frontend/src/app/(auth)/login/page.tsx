@@ -33,7 +33,7 @@ export default function LoginPage() {
 
     // Redirect if already authenticated
     if (isAuthenticated) {
-        router.replace('/admin/dashboard');
+        router.replace('/');
     }
 
     const {
@@ -50,7 +50,7 @@ export default function LoginPage() {
             if (res.success) {
                 login(res?.data!.user, res?.data!.token);
                 toast.success('Login successful!');
-                router.push('/admin/dashboard');
+                router.push('/');
             } else {
                 toast.error(res.message || 'Login failed');
             }

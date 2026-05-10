@@ -48,6 +48,10 @@ const theme = createTheme({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.png" />
+        <title>Exam Allotment | Admin Dashboard</title>
+      </head>
       <body>
         <ThemeProvider theme={theme}>
           <CssBaseline />
