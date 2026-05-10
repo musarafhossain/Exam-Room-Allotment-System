@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
     Box,
     Container,
     Typography,
     Stack,
 } from '@mui/material';
-import { StudentRoomService } from 'services';
+import { StudentRoomService, SettingService } from 'services';
 import { StudentRoomModel } from 'models';
 import ResultCard from '../result-card';
 import ResultSkeleton from '../result-skeleton';
@@ -23,6 +23,14 @@ export default function FindStudentRoomView() {
     const [searched, setSearched] = useState(false);
     const [lastData, setLastData] = useState<SearchFormValues | null>(null);
     const [isNetworkError, setIsNetworkError] = useState(false);
+
+    // Fetch student-label setting
+    const { data: settingResponse, isPending: isLoadingLabel } = useQuery({
+        queryKey: ['setting', 'student-label'],
+        queryFn: () => SettingService.getSettingByKey('student-label'),
+    });
+
+    const studentLabel = settingResponse?.data?.value;
 
     const mutation = useMutation({
         mutationFn: (data: SearchFormValues) => StudentRoomService.findStudentRoom(data),
@@ -129,6 +137,8 @@ export default function FindStudentRoomView() {
                     <RoomSearchForm
                         onSubmit={onSubmit}
                         isPending={mutation.isPending}
+                        studentLabel={studentLabel}
+                        isLoadingLabel={isLoadingLabel}
                     />
 
                     {mutation.isPending && <ResultSkeleton />}

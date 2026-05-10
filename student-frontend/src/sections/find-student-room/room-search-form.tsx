@@ -1,4 +1,5 @@
 "use client";
+import React, { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
@@ -8,29 +9,39 @@ import {
     TextField,
     Stack,
     InputAdornment,
+    Skeleton,
 } from '@mui/material';
 import {
     Search as SearchIcon,
 } from '@mui/icons-material';
 
-export const searchSchema = zod.object({
-    regNo: zod.string().min(1, 'Registration number is required').max(20, 'Maximum 20 digits allowed'),
+export const getSearchSchema = (label: string) => zod.object({
+    regNo: zod.string().min(1, `${label} is required`).max(20, 'Maximum 20 digits allowed'),
 });
 
-export type SearchFormValues = zod.infer<typeof searchSchema>;
+export type SearchFormValues = zod.infer<ReturnType<typeof getSearchSchema>>;
 
 interface RoomSearchFormProps {
     onSubmit: (data: SearchFormValues) => void;
     isPending: boolean;
+    studentLabel?: string;
+    isLoadingLabel?: boolean;
 }
 
-export default function RoomSearchForm({ onSubmit, isPending }: RoomSearchFormProps) {
+export default function RoomSearchForm({ 
+    onSubmit, 
+    isPending, 
+    studentLabel, 
+    isLoadingLabel 
+}: RoomSearchFormProps) {
+    const schema = useMemo(() => getSearchSchema(studentLabel || 'Registration Number'), [studentLabel]);
+
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<SearchFormValues>({
-        resolver: zodResolver(searchSchema)
+        resolver: zodResolver(schema)
     });
 
     return (
@@ -39,13 +50,34 @@ export default function RoomSearchForm({ onSubmit, isPending }: RoomSearchFormPr
                 <Stack spacing={3}>
                     <TextField
                         fullWidth
-                        label="Registration No"
+                        label={
+                            isLoadingLabel ? (
+                                <Box component="span" sx={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                                    <Box component="span" sx={{ opacity: 0 }}>Registration Number</Box>
+                                    <Skeleton 
+                                        variant="rectangular" 
+                                        animation="pulse"
+                                        sx={{ 
+                                            position: 'absolute', 
+                                            left: 0,
+                                            width: '100%', 
+                                            height: 18,
+                                            borderRadius: 2,
+                                            bgcolor: 'rgba(0,0,0,0.12)',
+                                        }} 
+                                    />
+                                </Box>
+                            ) : (
+                                studentLabel || 'Registration Number'
+                            )
+                        }
                         placeholder="Enter here"
                         {...register('regNo')}
                         error={!!errors.regNo}
                         helperText={errors.regNo?.message}
                         slotProps={{
                             inputLabel: {
+                                shrink: true,
                                 sx: {
                                     color: 'rgba(0,0,0,0.7)',
                                     fontWeight: 600,
