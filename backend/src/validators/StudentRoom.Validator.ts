@@ -33,7 +33,6 @@ class StudentRoomValidator {
 
     findStudentRoomSchema = z.object({
         regNo: z.string().min(1, "Registration number is required"),
-        date: z.coerce.date({ error: "Invalid date" })
     });
 }
 
