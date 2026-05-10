@@ -194,9 +194,6 @@ class AuthController {
                             if (result.success) {
                                 msgDiv.style.color = "#10b981";
                                 document.getElementById('resetForm').style.display = 'none';
-                                setTimeout(() => {
-                                    window.location.href = '/'; // Redirect to home or login page
-                                }, 3000);
                             } else {
                                 msgDiv.style.color = "#e74c3c";
                             }
