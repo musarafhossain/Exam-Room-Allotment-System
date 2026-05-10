@@ -13,32 +13,46 @@ import { StudentRoomModel } from 'models';
 import ResultCard from '../result-card';
 import ResultSkeleton from '../result-skeleton';
 import ResultEmpty from '../result-empty';
+import ResultError from '../result-error';
 import RoomSearchForm, { SearchFormValues } from '../room-search-form';
 import Footer from 'components/common/Footer';
+import { AxiosError } from 'axios';
 
 export default function FindStudentRoomView() {
     const [result, setResult] = useState<StudentRoomModel | null>(null);
     const [searched, setSearched] = useState(false);
+    const [lastData, setLastData] = useState<SearchFormValues | null>(null);
+    const [isNetworkError, setIsNetworkError] = useState(false);
 
     const mutation = useMutation({
         mutationFn: (data: SearchFormValues) => StudentRoomService.findStudentRoom(data),
         onSuccess: (res) => {
             setSearched(true);
+            setIsNetworkError(false);
             if (res.success && res.data) {
                 setResult(res.data);
             } else {
                 setResult(null);
             }
         },
-        onError: () => {
+        onError: (error: AxiosError) => {
             setSearched(true);
             setResult(null);
+            setIsNetworkError(!error.response);
         }
     });
 
     const onSubmit = (data: SearchFormValues) => {
+        setLastData(data);
         setSearched(false);
         mutation.mutate(data);
+    };
+
+    const handleRetry = () => {
+        if (lastData) {
+            setSearched(false);
+            mutation.mutate(lastData);
+        }
     };
 
     return (
@@ -119,8 +133,12 @@ export default function FindStudentRoomView() {
 
                     {mutation.isPending && <ResultSkeleton />}
 
-                    {searched && !mutation.isPending && !result && (
+                    {searched && !mutation.isPending && !isNetworkError && !result && (
                         <ResultEmpty />
+                    )}
+
+                    {isNetworkError && !mutation.isPending && (
+                        <ResultError onRetry={handleRetry} />
                     )}
 
                     {result && !mutation.isPending && (
