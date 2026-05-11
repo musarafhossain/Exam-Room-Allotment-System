@@ -100,7 +100,6 @@ export default function FindStudentRoomView() {
                                 mb: 2,
                                 mx: 'auto',
                                 display: 'block',
-                                borderRadius: 4,
                             }}
                         />
                         <Typography
