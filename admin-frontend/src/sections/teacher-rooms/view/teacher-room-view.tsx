@@ -331,7 +331,8 @@ export function TeacherRoomView() {
         for (let j = 1; j < parts.length; j++) {
           if (j - 1 < shiftHeaders.length) {
             const h = shiftHeaders[j - 1];
-            const val = parts[j].trim().toLowerCase() === 'yes';
+            const valStr = parts[j] ? parts[j].trim().toLowerCase() : '';
+            const val = valStr === 'yes' || valStr === '1' || valStr === 'y' || valStr === 'true';
             if (h.shiftNo === 1) {
               assignments[h.dateIdx].shift1 = val;
             } else if (h.shiftNo === 2) {

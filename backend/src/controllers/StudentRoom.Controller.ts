@@ -4,12 +4,26 @@ import { Types } from "mongoose";
 
 class StudentRoomController {
     getStudentRooms = async (req: Request, res: Response) => {
+        const search = req.query.search || '';
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const examType = (req.query.examType as string) || 'UG/PG';
         const skip = (page - 1) * limit;
 
-        const query = { examType };
+        const query: any = { examType };
+
+        if (search) {
+            query.$or = [
+                { roomNo: { $regex: search, $options: 'i' } },
+                { subject: { $regex: search, $options: 'i' } },
+                { building: { $regex: search, $options: 'i' } },
+                { floor: { $regex: search, $options: 'i' } },
+                { paper: { $regex: search, $options: 'i' } },
+                { examName: { $regex: search, $options: 'i' } },
+                { regNoFrom: { $regex: search, $options: 'i' } },
+                { regNoTo: { $regex: search, $options: 'i' } }
+            ];
+        }
 
         const rooms = await StudentRoomModel.find(query).skip(skip).limit(limit);
 
