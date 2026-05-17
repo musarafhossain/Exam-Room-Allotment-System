@@ -121,11 +121,12 @@ export default function FindTeacherRoomView() {
                                 color: '#000',
                                 fontSize: { xs: '2.5rem', sm: '3rem', md: '3.5rem' },
                                 letterSpacing: -2,
+                                fontFamily: 'Poppins, sans-serif',
                                 mb: 1,
                                 textShadow: '0 2px 15px rgba(255,255,255,0.8)'
                             }}
                         >
-                            Duty Checker
+                            Check Duty
                         </Typography>
                         <Box sx={{ width: 40, height: 4, bgcolor: 'primary.main', mx: 'auto', borderRadius: 2, mb: 2 }} />
                         <Typography
