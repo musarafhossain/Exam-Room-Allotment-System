@@ -103,7 +103,7 @@ export function StudentRoomView() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-rooms'] });
       toast.success('Room assignment created');
-      handleCloseModal();
+      // handleCloseModal();
     },
     onError: (err: any) => toast.error(err.message || 'Error creating room'),
   });
