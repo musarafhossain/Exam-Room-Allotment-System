@@ -6,7 +6,7 @@ import verifyJwtToken from '../middlewares/verifyJwtToken';
 
 const SubjectRouter = express.Router();
 
-SubjectRouter.get('/', verifyJwtToken, SubjectController.getSubjects);
+SubjectRouter.get('/', SubjectController.getSubjects);
 
 SubjectRouter.get('/:id', verifyJwtToken, SubjectController.getSubject);
 

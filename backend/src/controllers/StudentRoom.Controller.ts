@@ -171,7 +171,7 @@ class StudentRoomController {
 
     findStudentRoom = async (req: Request, res: Response) => {
         try {
-            const { regNo } = req.body;
+            const { regNo, subject } = req.body;
 
             // ✅ Validate regNo (must be numeric string)
             if (!/^\d+$/.test(regNo)) {
@@ -184,13 +184,16 @@ class StudentRoomController {
             // ✅ Convert to BigInt (SAFE for 20 digits)
             const regNoBig = BigInt(regNo);
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const localToday = new Date("2026-05-20");
+            const today = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()));
 
-            // ✅ Fetch by date only (fast filter)
-            const rooms = await StudentRoomModel.find({
-                date: today
-            });
+            const query: any = { date: today };
+            if (subject) {
+                query.subject = subject;
+            }
+
+            // ✅ Fetch by date (fast filter)
+            const rooms = await StudentRoomModel.find(query);
 
             // ✅ BigInt comparison (NO precision loss)
             const room = rooms.find(r => {

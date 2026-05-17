@@ -33,6 +33,7 @@ class StudentRoomValidator {
 
     findStudentRoomSchema = z.object({
         regNo: z.string().min(1, "Registration number is required"),
+        subject: z.string().optional(),
     });
 }
 
