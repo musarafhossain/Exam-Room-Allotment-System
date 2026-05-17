@@ -184,7 +184,7 @@ class StudentRoomController {
             // ✅ Convert to BigInt (SAFE for 20 digits)
             const regNoBig = BigInt(regNo);
 
-            const localToday = new Date("2026-05-20");
+            const localToday = new Date();
             const today = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()));
 
             const query: any = { date: today };
