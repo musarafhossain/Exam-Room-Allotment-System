@@ -120,8 +120,6 @@ export default function FindTeacherRoomView() {
                             sx={{
                                 color: '#000',
                                 fontSize: { xs: '2.5rem', sm: '3rem', md: '3.5rem' },
-                                letterSpacing: -2,
-                                fontFamily: 'Poppins, sans-serif',
                                 mb: 1,
                                 textShadow: '0 2px 15px rgba(255,255,255,0.8)'
                             }}
