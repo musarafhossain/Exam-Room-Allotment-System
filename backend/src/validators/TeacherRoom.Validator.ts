@@ -31,7 +31,7 @@ class TeacherRoomValidator {
 
     findTeacherRoomSchema = z.object({
         name: z.string().min(1, "Teacher name is required"),
-        date: z.coerce.date({ error: "Invalid date" })
+        date: z.coerce.date({ error: "Invalid date" }).optional()
     });
 }
 

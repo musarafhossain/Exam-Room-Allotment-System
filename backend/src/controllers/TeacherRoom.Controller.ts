@@ -131,32 +131,41 @@ class TeacherRoomController {
         try {
             const { name, date } = req.body;
 
-            const inputDate = new Date(date);
-            if (isNaN(inputDate.getTime())) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid date format"
-                });
+            let query: any = {
+                name: { $regex: name || "", $options: "i" }
+            };
+
+            let dateString = "";
+
+            if (date) {
+                const inputDate = new Date(date);
+                if (isNaN(inputDate.getTime())) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Invalid date format"
+                    });
+                }
+
+                dateString = ` on date ${inputDate.toDateString()}`;
+
+                // Alike search (partial match, case-insensitive)
+                // also need to match date exactly or by ignoring time?
+                // Since inputDate is typically just the day, let's match the date 
+                const startOfDay = new Date(inputDate);
+                startOfDay.setUTCHours(0,0,0,0);
+                
+                const endOfDay = new Date(inputDate);
+                endOfDay.setUTCHours(23,59,59,999);
+
+                query.date = { $gte: startOfDay, $lte: endOfDay };
             }
 
-            // Alike search (partial match, case-insensitive)
-            // also need to match date exactly or by ignoring time?
-            // Since inputDate is typically just the day, let's match the date 
-            const startOfDay = new Date(inputDate);
-            startOfDay.setUTCHours(0,0,0,0);
-            
-            const endOfDay = new Date(inputDate);
-            endOfDay.setUTCHours(23,59,59,999);
-
-            const rooms = await TeacherRoomModel.find({
-                name: { $regex: name, $options: "i" },
-                date: { $gte: startOfDay, $lte: endOfDay }
-            });
+            const rooms = await TeacherRoomModel.find(query);
 
             if (!rooms || rooms.length === 0) {
                 return res.status(404).json({
                     success: false,
-                    message: `No exam room assignments found for teacher name like "${name}" on date ${inputDate.toDateString()}`
+                    message: `No exam room assignments found for teacher name like "${name}"${dateString}`
                 });
             }
 

@@ -26,7 +26,7 @@ export default function Footer() {
           justifyContent: 'center', 
           gap: 0.6,
           color: 'text.secondary',
-          fontFamily: '"Montserrat", sans-serif', // Using Montserrat
+          fontFamily: '"Montserrat", sans-serif',
           letterSpacing: 0.8,
           fontSize: '0.8rem'
         }}

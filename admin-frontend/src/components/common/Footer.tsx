@@ -15,7 +15,7 @@ export default function Footer() {
       }}
     >
       <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
-        Design & Developed By{' '}
+        Designed & Developed By{' '}
         <Link
           href="https://www.linkedin.com/in/musarafhossain"
           target="_blank"
