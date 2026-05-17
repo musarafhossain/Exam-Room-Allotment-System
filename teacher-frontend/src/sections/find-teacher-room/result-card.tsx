@@ -31,8 +31,6 @@ export default function ResultCard({ result, shiftType, index }: ResultCardProps
     : `${result.shift2Start || '14:00'} - ${result.shift2End || '17:00'}`;
   const shiftColor = isShift1 ? "primary" : "secondary";
 
-  const isSticky = typeof index === 'number';
-
   return (
     <Fade in={true} timeout={500}>
       <Box
@@ -45,11 +43,6 @@ export default function ResultCard({ result, shiftType, index }: ResultCardProps
           bgcolor: 'rgba(255, 255, 255, 0.85)',
           backdropFilter: 'blur(20px)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.04)',
-          ...(isSticky && {
-            position: 'sticky',
-            top: { xs: 16 + index * 16, sm: 24 + index * 24 },
-            zIndex: index + 1,
-          }),
         }}
       >
         <Stack spacing={3}>
