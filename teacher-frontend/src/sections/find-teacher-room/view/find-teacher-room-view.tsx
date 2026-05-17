@@ -125,7 +125,7 @@ export default function FindTeacherRoomView() {
                                 textShadow: '0 2px 15px rgba(255,255,255,0.8)'
                             }}
                         >
-                            Room Finder
+                            Duty Checker
                         </Typography>
                         <Box sx={{ width: 40, height: 4, bgcolor: 'primary.main', mx: 'auto', borderRadius: 2, mb: 2 }} />
                         <Typography
