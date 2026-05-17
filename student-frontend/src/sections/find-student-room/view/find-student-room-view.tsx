@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import {
     Box,
     Container,
     Typography,
     Stack,
 } from '@mui/material';
-import { StudentRoomService, SettingService } from 'services';
+import { StudentRoomService } from 'services';
 import { StudentRoomModel } from 'models';
 import ResultCard from '../result-card';
 import ResultSkeleton from '../result-skeleton';
@@ -18,19 +18,19 @@ import RoomSearchForm, { SearchFormValues } from '../room-search-form';
 import Footer from 'components/common/Footer';
 import { AxiosError } from 'axios';
 
-export default function FindStudentRoomView() {
+interface FindStudentRoomViewProps {
+    studentLabel: string;
+    examType: string;
+}
+
+export default function FindStudentRoomView({ 
+    studentLabel, 
+    examType 
+}: FindStudentRoomViewProps) {
     const [result, setResult] = useState<StudentRoomModel | null>(null);
     const [searched, setSearched] = useState(false);
     const [lastData, setLastData] = useState<SearchFormValues | null>(null);
     const [isNetworkError, setIsNetworkError] = useState(false);
-
-    // Fetch student-label setting
-    const { data: settingResponse, isPending: isLoadingLabel } = useQuery({
-        queryKey: ['setting', 'student-label'],
-        queryFn: () => SettingService.getSettingByKey('student-label'),
-    });
-
-    const studentLabel = settingResponse?.data?.value;
 
     const mutation = useMutation({
         mutationFn: (data: SearchFormValues) => StudentRoomService.findStudentRoom(data),
@@ -137,7 +137,7 @@ export default function FindStudentRoomView() {
                         onSubmit={onSubmit}
                         isPending={mutation.isPending}
                         studentLabel={studentLabel}
-                        isLoadingLabel={isLoadingLabel}
+                        examType={examType}
                     />
 
                     {mutation.isPending && <ResultSkeleton />}
