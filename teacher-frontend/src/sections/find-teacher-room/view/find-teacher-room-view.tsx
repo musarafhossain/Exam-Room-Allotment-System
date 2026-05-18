@@ -139,7 +139,7 @@ export default function FindTeacherRoomView() {
                                 mb: 4
                             }}
                         >
-                            Find your examination duty assignments in seconds.
+                            Find Your Invigilation Duty in seconds.
                         </Typography>
                     </Box>
 
