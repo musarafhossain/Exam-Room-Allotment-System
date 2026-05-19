@@ -12,8 +12,11 @@ export default async function Page() {
 
   try {
     const labelRes = await SettingService.getSettingByKey('student-label');
+    console.log(labelRes);
     if (labelRes?.success && labelRes?.data?.value) {
+      console.log("Student Label: ", studentLabel);
       studentLabel = labelRes.data.value;
+      console.log("Server Student Label: ", labelRes.data.value);
     }
   } catch (err) {
     console.error('Error fetching student-label setting during SSR:', err);
@@ -21,8 +24,11 @@ export default async function Page() {
 
   try {
     const examTypeRes = await SettingService.getSettingByKey('exam-type');
+    console.log(examTypeRes);
     if (examTypeRes?.success && examTypeRes?.data?.value) {
+      console.log("Exam Type: ", examType);
       examType = examTypeRes.data.value;
+      console.log("Server Exam Type: ", examTypeRes.data.value);
     }
   } catch (err) {
     console.error('Error fetching exam-type setting during SSR:', err);
