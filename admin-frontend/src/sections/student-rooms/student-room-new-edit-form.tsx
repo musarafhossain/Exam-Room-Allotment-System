@@ -19,7 +19,7 @@ export const roomSchema = zod.object({
     regNoFrom: zod.string().min(1, 'Starting registration number is required'),
     regNoTo: zod.string().min(1, 'Ending registration number is required'),
   }).refine((data) => {
-      f (!data.regNoFrom || !data.regNoTo) return true;
+      if (!data.regNoFrom || !data.regNoTo) return true;
         return Number(data.regNoTo) >= Number(data.regNoFrom);
       }, {
           message: 'End registration number must be greater than or equal to start registration number',
