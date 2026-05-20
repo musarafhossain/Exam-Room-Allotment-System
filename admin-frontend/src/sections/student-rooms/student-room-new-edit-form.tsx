@@ -6,25 +6,27 @@ import { UseFormReturn, Controller } from 'react-hook-form';
 import * as zod from 'zod';
 
 export const roomSchema = zod.object({
-  examType: zod.enum(['UG/PG', 'Others']),
-  examName: zod.string().optional(),
-  roomNo: zod.string().min(1, 'Room number is required'),
-  floor: zod.string().optional(),
-  building: zod.string().optional(),
-  subject: zod.string().optional(),
-  paper: zod.string().optional(),
-  semester: zod.number().optional(),
-  time: zod.string().min(1, 'Time is required'),
-  date: zod.string().min(1, 'Date is required'),
-  regNoFrom: zod.string().min(1, 'Starting registration number is required'),
-  regNoTo: zod.string().min(1, 'Ending registration number is required'),
-}).refine((data) => {
-  if (!data.regNoFrom || !data.regNoTo) return true;
-  return data.regNoTo >= data.regNoFrom;
-}, {
-  message: 'End registration number must be greater than or equal to start registration number',
-  path: ['regNoTo'],
-});
+    examType: zod.enum(['UG/PG', 'Others']),
+    examName: zod.string().optional(),
+    roomNo: zod.string().min(1, 'Room number is required'),
+    floor: zod.string().optional(),
+    building: zod.string().optional(),
+    subject: zod.string().optional(),
+    paper: zod.string().optional(),
+    semester: zod.number().optional(),
+    time: zod.string().min(1, 'Time is required'),
+    date: zod.string().min(1, 'Date is required'),
+    regNoFrom: zod.string().min(1, 'Starting registration number is required'),
+    regNoTo: zod.string().min(1, 'Ending registration number is required'),
+   }).refine((data) => {
+           if (!data.regNoFrom || !data.regNoTo) return true;
+
+                              return Number(data.regNoTo) >= Number(data.regNoFrom);
+                              }, {
+                                message: 'End registration number must be greater than or equal to start registration number',
+                                  path: ['regNoTo'],
+                                  });
+})
 
 export type RoomFormValues = zod.infer<typeof roomSchema>;
 
