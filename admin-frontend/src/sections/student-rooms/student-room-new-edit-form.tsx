@@ -18,15 +18,13 @@ export const roomSchema = zod.object({
     date: zod.string().min(1, 'Date is required'),
     regNoFrom: zod.string().min(1, 'Starting registration number is required'),
     regNoTo: zod.string().min(1, 'Ending registration number is required'),
-   }).refine((data) => {
-           if (!data.regNoFrom || !data.regNoTo) return true;
-
-                              return Number(data.regNoTo) >= Number(data.regNoFrom);
-                              }, {
-                                message: 'End registration number must be greater than or equal to start registration number',
-                                  path: ['regNoTo'],
-                                  });
-})
+  }).refine((data) => {
+      f (!data.regNoFrom || !data.regNoTo) return true;
+        return Number(data.regNoTo) >= Number(data.regNoFrom);
+      }, {
+          message: 'End registration number must be greater than or equal to start registration number',
+          path: ['regNoTo'],
+     });
 
 export type RoomFormValues = zod.infer<typeof roomSchema>;
 
