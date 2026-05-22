@@ -5,7 +5,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Box, 
   Tabs,
-  Tab 
+  Tab,
+  TextField,
+  Autocomplete 
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,10 +33,26 @@ export function StudentRoomView() {
   const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'UG/PG' | 'Others'>('UG/PG');
 
+  const [filterFloor, setFilterFloor] = useState<string[]>([]);
+  const [filterBuilding, setFilterBuilding] = useState<string[]>([]);
+  const [filterSubject, setFilterSubject] = useState<string[]>([]);
+  const [filterPaper, setFilterPaper] = useState<string[]>([]);
+  const [filterSemester, setFilterSemester] = useState<number[]>([]);
+
   // Fetch data
   const stuRoomQuery = useQuery({
-    queryKey: ['student-rooms', page, rowsPerPage, searchTerm, activeTab],
-    queryFn: () => StudentRoomService.getList({ page: page + 1, limit: rowsPerPage, search: searchTerm, examType: activeTab }),
+    queryKey: ['student-rooms', page, rowsPerPage, searchTerm, activeTab, filterFloor, filterBuilding, filterSubject, filterPaper, filterSemester],
+    queryFn: () => StudentRoomService.getList({ 
+      page: page + 1, 
+      limit: rowsPerPage, 
+      search: searchTerm, 
+      examType: activeTab,
+      floor: filterFloor.length > 0 ? filterFloor.join(',') : undefined,
+      building: filterBuilding.length > 0 ? filterBuilding.join(',') : undefined,
+      subject: filterSubject.length > 0 ? filterSubject.join(',') : undefined,
+      paper: filterPaper.length > 0 ? filterPaper.join(',') : undefined,
+      semester: filterSemester.length > 0 ? filterSemester.join(',') : undefined
+    }),
   });
 
   const floorQuery = useQuery({
@@ -216,6 +234,78 @@ export function StudentRoomView() {
           <Tab label="Others Exams" value="Others" />
         </Tabs>
       </Box>
+
+      <Box sx={{ 
+        mb: 3, 
+        p: 2, 
+        bgcolor: 'background.paper', 
+        borderRadius: 2, 
+        boxShadow: '0px 2px 10px rgba(0,0,0,0.05)', 
+        border: '1px solid', 
+        borderColor: 'divider',
+        display: 'flex', 
+        gap: 2, 
+        flexWrap: 'wrap' 
+      }}>
+        {activeTab === 'UG/PG' && (
+          <Autocomplete
+            multiple
+            limitTags={2}
+            disableCloseOnSelect
+            options={[1, 2, 3, 4, 5, 6, 7, 8]}
+            getOptionLabel={(option) => option.toString()}
+            value={filterSemester}
+            onChange={(_, newValue) => { setFilterSemester(newValue); setPage(0); }}
+            renderInput={(params) => <TextField {...params} label="Filter Semester" size="small" />}
+            sx={{ minWidth: 150, flex: 1 }}
+          />
+        )}
+        <Autocomplete
+          multiple
+          limitTags={2}
+          disableCloseOnSelect
+          options={floors.map((f) => f.name)}
+          value={filterFloor}
+          onChange={(_, newValue) => { setFilterFloor(newValue); setPage(0); }}
+          renderInput={(params) => <TextField {...params} label="Filter Floor" size="small" />}
+          sx={{ minWidth: 150, flex: 1 }}
+        />
+        <Autocomplete
+          multiple
+          limitTags={2}
+          disableCloseOnSelect
+          options={buildings.map((b) => b.name)}
+          value={filterBuilding}
+          onChange={(_, newValue) => { setFilterBuilding(newValue); setPage(0); }}
+          renderInput={(params) => <TextField {...params} label="Filter Building" size="small" />}
+          sx={{ minWidth: 150, flex: 1 }}
+        />
+        {activeTab === 'UG/PG' && (
+          <>
+            <Autocomplete
+              multiple
+              limitTags={2}
+              disableCloseOnSelect
+              options={subjects.map((s) => s.name)}
+              value={filterSubject}
+              onChange={(_, newValue) => { setFilterSubject(newValue); setPage(0); }}
+              renderInput={(params) => <TextField {...params} label="Filter Subject" size="small" />}
+              sx={{ minWidth: 150, flex: 1 }}
+            />
+            <Autocomplete
+              multiple
+              limitTags={2}
+              disableCloseOnSelect
+              options={papers.map((p) => p.name)}
+              value={filterPaper}
+              onChange={(_, newValue) => { setFilterPaper(newValue); setPage(0); }}
+              renderInput={(params) => <TextField {...params} label="Filter Paper" size="small" />}
+              sx={{ minWidth: 150, flex: 1 }}
+            />
+          </>
+        )}
+      </Box>
+
       <DataTable
         title={activeTab === 'UG/PG' ? "UG/PG Student Rooms" : "Other Exam Student Rooms"}
         columns={columns}

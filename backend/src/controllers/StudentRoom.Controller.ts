@@ -12,6 +12,35 @@ class StudentRoomController {
 
         const query: any = { examType };
 
+        const { roomNo, room, building, semester, subject, date, time, paper, floor } = req.query;
+
+        const parseArray = (val: any) => {
+            if (!val) return null;
+            if (Array.isArray(val)) return val;
+            if (typeof val === 'string') return val.split(',');
+            return null;
+        };
+
+        if (roomNo || room) query.roomNo = roomNo || room;
+
+        const bArr = parseArray(building);
+        if (bArr) query.building = { $in: bArr };
+
+        const fArr = parseArray(floor);
+        if (fArr) query.floor = { $in: fArr };
+
+        const semArr = parseArray(semester);
+        if (semArr) query.semester = { $in: semArr.map(Number) };
+
+        const subArr = parseArray(subject);
+        if (subArr) query.subject = { $in: subArr };
+
+        const pArr = parseArray(paper);
+        if (pArr) query.paper = { $in: pArr };
+
+        if (date) query.date = date;
+        if (time) query.time = time;
+
         if (search) {
             query.$or = [
                 { roomNo: { $regex: search, $options: 'i' } },
@@ -25,7 +54,7 @@ class StudentRoomController {
             ];
         }
 
-        const rooms = await StudentRoomModel.find(query).skip(skip).limit(limit);
+        const rooms = await StudentRoomModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
         const total = await StudentRoomModel.countDocuments(query);
         const lastPage = Math.ceil(total / limit);
