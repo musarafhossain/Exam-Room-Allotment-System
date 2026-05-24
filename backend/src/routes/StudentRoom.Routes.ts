@@ -37,4 +37,11 @@ StudentRoomRouter.post(
     StudentRoomController.bulkDeleteStudentRoom
 );
 
+StudentRoomRouter.post(
+    "/bulk-update",
+    verifyJwtToken,
+    validate(StudentRoomValidator.bulkUpdateStudentRoomSchema),
+    StudentRoomController.bulkUpdateStudentRoom
+);
+
 export default StudentRoomRouter;

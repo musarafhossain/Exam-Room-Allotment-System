@@ -52,10 +52,12 @@ interface DataTableProps {
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
   onBulkDelete?: (selectedIds: string[]) => void;
+  onBulkEdit?: (selectedIds: string[]) => void;
   onSearch?: (term: string) => void;
   onAdd?: () => void;
   title: string;
   addButtonLabel?: string;
+  clearSelectionTrigger?: number;
 }
 
 export default function DataTable({
@@ -70,13 +72,21 @@ export default function DataTable({
   onEdit,
   onDelete,
   onBulkDelete,
+  onBulkEdit,
   onSearch,
   onAdd,
   title,
-  addButtonLabel = "Add New"
+  addButtonLabel = "Add New",
+  clearSelectionTrigger
 }: DataTableProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+
+  React.useEffect(() => {
+    if (clearSelectionTrigger !== undefined && clearSelectionTrigger > 0) {
+      setSelected([]);
+    }
+  }, [clearSelectionTrigger]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -174,11 +184,22 @@ export default function DataTable({
         )}
 
         {numSelected > 0 && (
-          <Tooltip title="Delete Selected">
-            <IconButton onClick={handleBulkDelete}>
-              <DeleteIcon color="error" />
-            </IconButton>
-          </Tooltip>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {onBulkEdit && (
+              <Tooltip title="Edit Selected">
+                <IconButton onClick={() => onBulkEdit(selected)}>
+                  <EditIcon color="primary" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {onBulkDelete && (
+              <Tooltip title="Delete Selected">
+                <IconButton onClick={handleBulkDelete}>
+                  <DeleteIcon color="error" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
         )}
       </Toolbar>
 

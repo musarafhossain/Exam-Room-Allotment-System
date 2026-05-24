@@ -18,7 +18,8 @@ import ManagementModal from 'components/common/ManagementModal';
 import toast from 'react-hot-toast';
 import dayjs from 'dayjs';
 import ConfirmDialog from 'components/common/ConfirmDialog';
-import StudentRoomNewEditForm, { roomSchema, type RoomFormValues } from 'sections/student-rooms/student-room-new-edit-form';
+import StudentRoomNewEditForm, { roomSchema, getBulkRoomSchema, type RoomFormValues } from 'sections/student-rooms/student-room-new-edit-form';
+import StudentRoomBulkEditForm from 'sections/student-rooms/student-room-bulk-edit-form';
 
 export function StudentRoomView() {
   const queryClient = useQueryClient();
@@ -33,11 +34,17 @@ export function StudentRoomView() {
   const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'UG/PG' | 'Others'>('UG/PG');
 
+  const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
+  const [bulkEditRooms, setBulkEditRooms] = useState<StudentRoomModel[]>([]);
+  const [initialLockedFields, setInitialLockedFields] = useState<Record<string, boolean>>({});
+  const [unlockedFields, setUnlockedFields] = useState<Record<string, boolean>>({});
+
   const [filterFloor, setFilterFloor] = useState<string[]>([]);
   const [filterBuilding, setFilterBuilding] = useState<string[]>([]);
   const [filterSubject, setFilterSubject] = useState<string[]>([]);
   const [filterPaper, setFilterPaper] = useState<string[]>([]);
   const [filterSemester, setFilterSemester] = useState<number[]>([]);
+  const [clearSelectionTrigger, setClearSelectionTrigger] = useState(0);
 
   // Fetch data
   const stuRoomQuery = useQuery({
@@ -115,6 +122,15 @@ export function StudentRoomView() {
 
   const { handleSubmit, reset } = methods;
 
+  const dynamicBulkSchema = useMemo(() => {
+    return getBulkRoomSchema(initialLockedFields, unlockedFields);
+  }, [initialLockedFields, unlockedFields]);
+
+  const bulkEditMethods = useForm<RoomFormValues>({
+    resolver: zodResolver(dynamicBulkSchema) as any,
+  });
+  const { handleSubmit: handleBulkSubmit } = bulkEditMethods;
+
   // Mutations
   const createMutation = useMutation({
     mutationFn: (newRoom: RoomFormValues) => StudentRoomService.create(newRoom),
@@ -154,6 +170,18 @@ export function StudentRoomView() {
       setIsBulkConfirmOpen(false);
     },
     onError: (err: any) => toast.error(err.message || 'Error during bulk delete'),
+  });
+
+  const bulkUpdateMutation = useMutation({
+    mutationFn: (payload: { ids: string[], updateData: Partial<RoomFormValues> }) => StudentRoomService.bulkUpdate(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student-rooms'] });
+      toast.success('Room assignments updated successfully');
+      setIsBulkEditModalOpen(false);
+      setBulkEditRooms([]);
+      setClearSelectionTrigger(prev => prev + 1);
+    },
+    onError: (err: any) => toast.error(err.message || 'Error during bulk update'),
   });
 
   const handleOpenModal = (room: StudentRoomModel | null = null) => {
@@ -197,6 +225,77 @@ export function StudentRoomView() {
     } else {
       createMutation.mutate(formData);
     }
+  };
+
+  const handleOpenBulkEdit = (selectedIds: string[]) => {
+    const selected = rooms.filter(r => selectedIds.includes(r._id || r.id || ''));
+    setBulkEditRooms(selected);
+
+    const fieldsToCompare: (keyof RoomFormValues)[] = ['examType', 'examName', 'roomNo', 'floor', 'building', 'subject', 'paper', 'semester', 'time', 'date', 'regNoFrom', 'regNoTo'];
+    const locked: Record<string, boolean> = {};
+    const commonValues: Partial<RoomFormValues> = {};
+
+    fieldsToCompare.forEach(field => {
+      if (selected.length === 0) return;
+      const firstVal = selected[0][field as keyof StudentRoomModel];
+      
+      const isAllSame = selected.every(r => {
+          let val = r[field as keyof StudentRoomModel];
+          if (field === 'date' && val) val = (val as string).split('T')[0];
+          let fVal = firstVal;
+          if (field === 'date' && fVal) fVal = (fVal as string).split('T')[0];
+          return val === fVal;
+      });
+
+      if (isAllSame) {
+        locked[field] = false;
+        let val = firstVal;
+        if (field === 'date' && val) val = (val as string).split('T')[0] as any;
+        commonValues[field] = val as any;
+      } else {
+        locked[field] = true;
+        commonValues[field] = '' as any;
+      }
+    });
+
+    setInitialLockedFields(locked);
+    setUnlockedFields({});
+    
+    bulkEditMethods.reset({
+      examType: (commonValues.examType as any) || activeTab,
+      examName: commonValues.examName || '',
+      roomNo: commonValues.roomNo || '',
+      floor: commonValues.floor || '',
+      building: commonValues.building || '',
+      subject: commonValues.subject || '',
+      paper: commonValues.paper || '',
+      semester: commonValues.semester ?? 1,
+      time: commonValues.time || '10:00',
+      date: commonValues.date || '',
+      regNoFrom: commonValues.regNoFrom || '',
+      regNoTo: commonValues.regNoTo || '',
+    });
+
+    setIsBulkEditModalOpen(true);
+  };
+
+  const onBulkEditSubmit = (formData: RoomFormValues) => {
+    const updateData: Partial<RoomFormValues> = {};
+    const fields: (keyof RoomFormValues)[] = ['examType', 'examName', 'roomNo', 'floor', 'building', 'subject', 'paper', 'semester', 'time', 'date', 'regNoFrom', 'regNoTo'];
+    
+    fields.forEach(field => {
+      if (!initialLockedFields[field] || unlockedFields[field]) {
+        updateData[field] = formData[field] as any;
+      }
+    });
+
+    if (Object.keys(updateData).length === 0) {
+      toast.error('No fields were modified');
+      return;
+    }
+
+    const ids = bulkEditRooms.map(r => (r._id || r.id) as string);
+    bulkUpdateMutation.mutate({ ids, updateData });
   };
 
   const columns = activeTab === 'UG/PG' ? [
@@ -319,6 +418,8 @@ export function StudentRoomView() {
         onSearch={setSearchTerm}
         onAdd={() => handleOpenModal()}
         onEdit={(row) => handleOpenModal(row)}
+        onBulkEdit={handleOpenBulkEdit}
+        clearSelectionTrigger={clearSelectionTrigger}
         onDelete={(row) => {
           setDeleteTargetId(row._id);
           setIsConfirmOpen(true);
@@ -366,6 +467,25 @@ export function StudentRoomView() {
         isSaving={createMutation.isPending || updateMutation.isPending}
       >
         <StudentRoomNewEditForm methods={methods} floors={floors} subjects={subjects} papers={papers} buildings={buildings} />
+      </ManagementModal>
+
+      <ManagementModal
+        open={isBulkEditModalOpen}
+        onClose={() => { setIsBulkEditModalOpen(false); setBulkEditRooms([]); }}
+        title="Bulk Edit Assignments"
+        onSubmit={handleBulkSubmit(onBulkEditSubmit)}
+        isSaving={bulkUpdateMutation.isPending}
+      >
+        <StudentRoomBulkEditForm 
+          methods={bulkEditMethods} 
+          floors={floors} 
+          subjects={subjects} 
+          papers={papers} 
+          buildings={buildings} 
+          initialLockedFields={initialLockedFields}
+          unlockedFields={unlockedFields}
+          onUnlockField={(field) => setUnlockedFields(prev => ({ ...prev, [field]: true }))}
+        />
       </ManagementModal>
     </Box>
   );

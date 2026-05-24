@@ -56,4 +56,12 @@ export default class StudentRoomService extends BaseService {
                 .catch((err) => reject(err));
         });
     }
+
+    public static bulkUpdate(payload: { ids: string[], updateData: any }): Promise<ResponseModel<any>> {
+        return new Promise((resolve, reject) => {
+            this.Http.post(`${this.API_PREFIX}bulk-update`, payload)
+                .then((res) => resolve(res.data))
+                .catch((err) => reject(err));
+        });
+    }
 }

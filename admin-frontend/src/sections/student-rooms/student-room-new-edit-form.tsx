@@ -24,7 +24,33 @@ export const roomSchema = zod.object({
       }, {
           message: 'End registration number must be greater than or equal to start registration number',
           path: ['regNoTo'],
-     });
+   });
+
+export const getBulkRoomSchema = (initialLockedFields: Record<string, boolean>, unlockedFields: Record<string, boolean>) => {
+  const isFieldActive = (field: string) => !initialLockedFields[field] || unlockedFields[field];
+
+  return zod.object({
+    examType: zod.enum(['UG/PG', 'Others']).optional(),
+    examName: zod.string().optional(),
+    roomNo: isFieldActive('roomNo') ? zod.string().min(1, 'Room number is required') : zod.string().optional().or(zod.literal('')),
+    floor: zod.string().optional().or(zod.literal('')),
+    building: zod.string().optional().or(zod.literal('')),
+    subject: zod.string().optional().or(zod.literal('')),
+    paper: zod.string().optional().or(zod.literal('')),
+    semester: zod.union([zod.number(), zod.string()]).optional(),
+    time: isFieldActive('time') ? zod.string().min(1, 'Time is required') : zod.string().optional().or(zod.literal('')),
+    date: isFieldActive('date') ? zod.string().min(1, 'Date is required') : zod.string().optional().or(zod.literal('')),
+    regNoFrom: isFieldActive('regNoFrom') ? zod.string().min(1, 'Starting registration number is required') : zod.string().optional().or(zod.literal('')),
+    regNoTo: isFieldActive('regNoTo') ? zod.string().min(1, 'Ending registration number is required') : zod.string().optional().or(zod.literal('')),
+  }).refine((data) => {
+      if (!isFieldActive('regNoFrom') || !isFieldActive('regNoTo')) return true;
+      if (!data.regNoFrom || !data.regNoTo || data.regNoFrom === '' || data.regNoTo === '') return true;
+      return Number(data.regNoTo) >= Number(data.regNoFrom);
+    }, {
+      message: 'End registration number must be greater than or equal to start registration number',
+      path: ['regNoTo'],
+  });
+};
 
 export type RoomFormValues = zod.infer<typeof roomSchema>;
 

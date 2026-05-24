@@ -35,6 +35,26 @@ class StudentRoomValidator {
         regNo: z.string().min(1, "Registration number is required"),
         subject: z.string().optional(),
     });
+
+    bulkUpdateDataSchema = z.object({
+        examType: z.enum(['UG/PG', 'Others']).optional(),
+        examName: z.string().optional(),
+        roomNo: z.string().optional(),
+        floor: z.string().optional(),
+        building: z.string().optional(),
+        subject: z.string().optional(),
+        paper: z.string().optional(),
+        semester: z.number().optional(),
+        time: z.string().optional(),
+        date: z.coerce.date().optional(),
+        regNoFrom: z.string().optional(),
+        regNoTo: z.string().optional()
+    });
+
+    bulkUpdateStudentRoomSchema = z.object({
+        ids: z.array(z.string()).min(1, "At least one ID is required"),
+        updateData: this.bulkUpdateDataSchema
+    });
 }
 
 export default new StudentRoomValidator();
