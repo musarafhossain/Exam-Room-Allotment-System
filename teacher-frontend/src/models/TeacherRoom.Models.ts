@@ -9,4 +9,5 @@ export default class TeacherRoomModel extends BaseModel {
     public shift2End?: string;
     public shift1?: boolean;
     public shift2?: boolean;
+    public type?: 'NEP' | 'CBCS';
 }

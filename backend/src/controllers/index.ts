@@ -2,6 +2,7 @@ import UserController from "./User.Controller"
 import AuthController from "./Auth.Controller"
 import StudentRoomController from "./StudentRoom.Controller"
 import TeacherRoomController from "./TeacherRoom.Controller"
+import CBCSTeacherRoomController from "./CBCSTeacherRoom.Controller"
 import SubjectController from "./Subject.Controller"
 import PaperController from "./Paper.Controller"
 import FloorController from "./Floor.Controller"
@@ -13,6 +14,7 @@ export {
     AuthController,
     StudentRoomController,
     TeacherRoomController,
+    CBCSTeacherRoomController,
     SubjectController,
     PaperController,
     FloorController,

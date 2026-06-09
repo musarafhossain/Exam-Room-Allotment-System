@@ -8,6 +8,7 @@ import {
   Grid,
   Typography,
   Fade,
+  Chip
 } from '@mui/material';
 import {
   AccessTime as TimeIcon,
@@ -73,6 +74,14 @@ export default function ResultCard({ result, shiftType, index }: ResultCardProps
                 <Typography variant="body2" color="text.secondary">{dayjs(result.date).format('ddd, MMM DD, YYYY')}</Typography>
               </Box>
             </Stack>
+            {result.type && (
+              <Chip 
+                label={result.type} 
+                color={result.type === 'CBCS' ? 'secondary' : 'primary'} 
+                size="small" 
+                sx={{ fontWeight: 'bold' }} 
+              />
+            )}
           </Box>
 
           <Divider sx={{ borderStyle: 'dashed' }} />

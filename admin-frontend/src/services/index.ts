@@ -2,6 +2,7 @@ import AuthService from "./AuthService";
 import StudentRoomService from "./StudentRoomService";
 import UserService from "./UserService";
 import TeacherRoomService from "./TeacherRoomService";
+import CBCSTeacherRoomService from "./CBCSTeacherRoomService";
 import SubjectService from "./SubjectService";
 import PaperService from "./PaperService";
 import FloorService from "./FloorService";
@@ -13,6 +14,7 @@ export {
     StudentRoomService,
     UserService,
     TeacherRoomService,
+    CBCSTeacherRoomService,
     SubjectService,
     PaperService,
     FloorService,

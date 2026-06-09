@@ -8,7 +8,7 @@ import {
     Typography,
     Stack,
 } from '@mui/material';
-import { TeacherRoomService } from 'services';
+import { TeacherRoomService, CBCSTeacherRoomService } from 'services';
 import { TeacherRoomModel } from 'models';
 import ResultCard from '../result-card';
 import ResultSkeleton from '../result-skeleton';
@@ -25,7 +25,36 @@ export default function FindTeacherRoomView() {
     const [isNetworkError, setIsNetworkError] = useState(false);
 
     const mutation = useMutation({
-        mutationFn: (data: SearchFormValues) => TeacherRoomService.findTeacherRoom(data),
+        mutationFn: async (data: SearchFormValues) => {
+            const [nepRes, cbcsRes] = await Promise.allSettled([
+                TeacherRoomService.findTeacherRoom(data),
+                CBCSTeacherRoomService.findTeacherRoom(data)
+            ]);
+
+            const combined: TeacherRoomModel[] = [];
+            let anySuccess = false;
+
+            if (nepRes.status === 'fulfilled' && nepRes.value.success && nepRes.value.data) {
+                anySuccess = true;
+                const arr = Array.isArray(nepRes.value.data) ? nepRes.value.data : [nepRes.value.data];
+                combined.push(...arr.map(d => ({ ...d, type: 'NEP' as const })));
+            }
+
+            if (cbcsRes.status === 'fulfilled' && cbcsRes.value.success && cbcsRes.value.data) {
+                anySuccess = true;
+                const arr = Array.isArray(cbcsRes.value.data) ? cbcsRes.value.data : [cbcsRes.value.data];
+                combined.push(...arr.map(d => ({ ...d, type: 'CBCS' as const })));
+            }
+
+            if (!anySuccess && nepRes.status === 'rejected' && cbcsRes.status === 'rejected') {
+                throw nepRes.reason;
+            }
+
+            return {
+                success: anySuccess,
+                data: combined
+            };
+        },
         onSuccess: (res) => {
             setSearched(true);
             setIsNetworkError(false);

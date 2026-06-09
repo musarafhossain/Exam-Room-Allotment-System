@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { UserRouter, AuthRouter, StudentRoomRouter, TeacherRoomRouter, SubjectRouter, PaperRouter, FloorRouter, BuildingRouter, SettingRouter } from './routes';
+import { UserRouter, AuthRouter, StudentRoomRouter, TeacherRoomRouter, CBCSTeacherRoomRouter, SubjectRouter, PaperRouter, FloorRouter, BuildingRouter, SettingRouter } from './routes';
 import connectDB from './config/db';
 
 const app = express();
@@ -25,6 +25,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/users', UserRouter);
 app.use('/api/v1/student-rooms', StudentRoomRouter);
 app.use('/api/v1/teacher-rooms', TeacherRoomRouter);
+app.use('/api/v1/cbcs-teacher-rooms', CBCSTeacherRoomRouter);
 app.use('/api/v1/subjects', SubjectRouter);
 app.use('/api/v1/papers', PaperRouter);
 app.use('/api/v1/floors', FloorRouter);

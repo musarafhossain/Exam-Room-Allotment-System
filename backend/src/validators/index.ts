@@ -2,6 +2,7 @@ import UserValidator from "./User.Validator";
 import AuthValidator from "./Auth.Validator";
 import StudentRoomValidator from "./StudentRoom.Validator";
 import TeacherRoomValidator from "./TeacherRoom.Validator";
+import CBCSTeacherRoomValidator from "./CBCSTeacherRoom.Validator";
 import SubjectValidator from "./Subject.Validator";
 import PaperValidator from "./Paper.Validator";
 import FloorValidator from "./Floor.Validator";
@@ -12,6 +13,7 @@ export {
     AuthValidator,
     StudentRoomValidator,
     TeacherRoomValidator,
+    CBCSTeacherRoomValidator,
     SubjectValidator,
     PaperValidator,
     FloorValidator,

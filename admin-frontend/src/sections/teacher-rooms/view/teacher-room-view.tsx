@@ -22,7 +22,9 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
-  Skeleton
+  Skeleton,
+  Tabs,
+  Tab
 } from '@mui/material';
 import { 
   Add as AddIcon, 
@@ -35,7 +37,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import { TeacherRoomService } from 'services';
+import { TeacherRoomService, CBCSTeacherRoomService } from 'services';
 import toast from 'react-hot-toast';
 
 interface DateColumn {
@@ -56,6 +58,7 @@ interface TeacherRow {
 
 export function TeacherRoomView() {
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<'NEP' | 'CBCS'>('NEP');
 
   const [dates, setDates] = useState<DateColumn[]>([
     {
@@ -71,9 +74,11 @@ export function TeacherRoomView() {
     { name: '', assignments: [{ shift1: false, shift2: false }] }
   ]);
 
+  const activeService = activeTab === 'NEP' ? TeacherRoomService : CBCSTeacherRoomService;
+
   const { data: listData, isLoading } = useQuery({
-    queryKey: ['teacher-rooms'],
-    queryFn: () => TeacherRoomService.getList(),
+    queryKey: ['teacher-rooms', activeTab],
+    queryFn: () => activeService.getList(),
   });
 
   useEffect(() => {
@@ -122,6 +127,15 @@ export function TeacherRoomView() {
       if (teacherMap.size > 0) {
         setRows(Array.from(teacherMap.values()));
       }
+    } else {
+      setDates([{
+        date: '',
+        shift1Start: '10:00',
+        shift1End: '13:00',
+        shift2Start: '14:00',
+        shift2End: '17:00'
+      }]);
+      setRows([{ name: '', assignments: [{ shift1: false, shift2: false }] }]);
     }
   }, [listData]);
 
@@ -177,10 +191,10 @@ export function TeacherRoomView() {
   };
 
   const submitMutation = useMutation({
-    mutationFn: (data: any) => TeacherRoomService.create(data), // Using create as a placeholder for bulk submission
+    mutationFn: (data: any) => activeService.create(data), // Using create as a placeholder for bulk submission
     onSuccess: () => {
         toast.success('Data sent successfully');
-        queryClient.invalidateQueries({ queryKey: ['teacher-rooms'] });
+        queryClient.invalidateQueries({ queryKey: ['teacher-rooms', activeTab] });
     },
     onError: (err: any) => toast.error(err.message || 'Error sending data'),
   });
@@ -406,6 +420,14 @@ export function TeacherRoomView() {
     <Box sx={{ p: 3 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
         <Typography variant="h4">Teacher Room Section</Typography>
+        <Tabs 
+          value={activeTab} 
+          onChange={(e, v) => setActiveTab(v)} 
+          sx={{ '& .MuiTab-root': { fontWeight: 'bold', fontSize: 16 } }}
+        >
+          <Tab label="NEP" value="NEP" />
+          <Tab label="CBCS" value="CBCS" />
+        </Tabs>
         <Stack direction="row" spacing={2}>
           <Button
             variant="contained"
