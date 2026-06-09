@@ -464,8 +464,7 @@ export function TeacherRoomView() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h4">Teacher Room Section</Typography>
+      <Box sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
         <Tabs 
           value={activeTab} 
           onChange={(e, v) => setActiveTab(v)} 
@@ -474,6 +473,10 @@ export function TeacherRoomView() {
           <Tab label="NEP" value="NEP" />
           <Tab label="CBCS" value="CBCS" />
         </Tabs>
+      </Box>
+
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h4">Teacher Room Section</Typography>
         <Stack direction="row" spacing={2} alignItems="center">
           {selectedRows.length > 0 && (
             <Button
