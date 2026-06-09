@@ -59,6 +59,7 @@ interface TeacherRow {
 export function TeacherRoomView() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'NEP' | 'CBCS'>('NEP');
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const [dates, setDates] = useState<DateColumn[]>([
     {
@@ -80,6 +81,11 @@ export function TeacherRoomView() {
     queryKey: ['teacher-rooms', activeTab],
     queryFn: () => activeService.getList(),
   });
+
+  // Clear selection on tab change
+  useEffect(() => {
+    setSelectedRows([]);
+  }, [activeTab]);
 
   useEffect(() => {
     if (listData?.items && listData.items.length > 0) {
@@ -137,6 +143,7 @@ export function TeacherRoomView() {
       }]);
       setRows([{ name: '', assignments: [{ shift1: false, shift2: false }] }]);
     }
+    setSelectedRows([]);
   }, [listData]);
 
   const addDate = () => {
@@ -158,6 +165,7 @@ export function TeacherRoomView() {
       name: '',
       assignments: dates.map(() => ({ shift1: false, shift2: false }))
     }]);
+    setSelectedRows([]);
   };
 
   const handleDateChange = (index: number, field: keyof DateColumn, value: string) => {
@@ -188,6 +196,43 @@ export function TeacherRoomView() {
 
   const deleteRow = (index: number) => {
     setRows(rows.filter((_, i) => i !== index));
+    setSelectedRows([]);
+  };
+
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelecteds = rows.map((_, idx) => idx);
+      setSelectedRows(newSelecteds);
+      return;
+    }
+    setSelectedRows([]);
+  };
+
+  const handleRowCheckboxClick = (index: number) => {
+    const selectedIndex = selectedRows.indexOf(index);
+    let newSelected: number[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedRows, index);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedRows.slice(1));
+    } else if (selectedIndex === selectedRows.length - 1) {
+      newSelected = newSelected.concat(selectedRows.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedRows.slice(0, selectedIndex),
+        selectedRows.slice(selectedIndex + 1)
+      );
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedRows.length === 0) return;
+    if (confirm(`Are you sure you want to delete ${selectedRows.length} selected row(s)?`)) {
+      setRows(rows.filter((_, idx) => !selectedRows.includes(idx)));
+      setSelectedRows([]);
+    }
   };
 
   const submitMutation = useMutation({
@@ -407,6 +452,7 @@ export function TeacherRoomView() {
         });
 
         setRows(updatedRows);
+        setSelectedRows([]);
       }
       toast.success("CSV Data Appended. Review and click Submit Data to save.");
       
@@ -428,7 +474,17 @@ export function TeacherRoomView() {
           <Tab label="NEP" value="NEP" />
           <Tab label="CBCS" value="CBCS" />
         </Tabs>
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          {selectedRows.length > 0 && (
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={handleBulkDelete}
+            >
+              Delete Selected ({selectedRows.length})
+            </Button>
+          )}
           <Button
             variant="contained"
             color="primary"
@@ -507,7 +563,15 @@ export function TeacherRoomView() {
                 top: 0,
                 borderRight: '1px solid #e0e0e0'
               }}>
-                Teacher Name
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Checkbox
+                    color="primary"
+                    indeterminate={selectedRows.length > 0 && selectedRows.length < rows.length}
+                    checked={rows.length > 0 && selectedRows.length === rows.length}
+                    onChange={handleSelectAllClick}
+                  />
+                  <span>Teacher Name</span>
+                </Stack>
               </TableCell>
               {dates.map((dateCol, idx) => (
                 <TableCell
@@ -661,6 +725,11 @@ export function TeacherRoomView() {
                   borderRight: '1px solid #e0e0e0'
                 }}>
                   <Stack direction="row" spacing={1} alignItems="center">
+                    <Checkbox
+                      color="primary"
+                      checked={selectedRows.indexOf(rowIndex) !== -1}
+                      onChange={() => handleRowCheckboxClick(rowIndex)}
+                    />
                     <Tooltip title="Delete Teacher Row">
                       <IconButton
                         size="small"
