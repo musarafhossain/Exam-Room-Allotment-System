@@ -241,6 +241,10 @@ class StudentRoomController {
             const currentMinute = parseInt(getPart('minute')!);
 
             const [displayHour, displayMinute] = displayTimeStr.split(':').map(Number);
+            const ampm = displayHour >= 12 ? 'PM' : 'AM';
+            const displayHour12 = displayHour % 12 || 12;
+            const displayMinuteStr = displayMinute.toString().padStart(2, '0');
+            const displayTimeAMPM = `${displayHour12}:${displayMinuteStr} ${ampm}`;
 
             const isAfterDisplayTime = (currentHour > displayHour) || (currentHour === displayHour && currentMinute >= displayMinute);
 
@@ -261,9 +265,9 @@ class StudentRoomController {
             }
 
             if (allowedDates.length === 0) {
-                let msg = `Room allotment will be displayed on exam day at ${displayTimeStr}.`;
+                let msg = `Room allotment will be displayed on exam day at ${displayTimeAMPM}.`;
                 if (displayDateOption === 'one_day_before') {
-                    msg = `Room allotment will be displayed one day before exam at ${displayTimeStr}.`;
+                    msg = `Room allotment will be displayed one day before exam at ${displayTimeAMPM}.`;
                 }
                 return res.status(403).json({
                     success: false,
@@ -292,9 +296,9 @@ class StudentRoomController {
             });
 
             if (!room) {
-                let msg = `Room allotment will be displayed on exam day at ${displayTimeStr}.`;
+                let msg = `Room allotment will be displayed on exam day at ${displayTimeAMPM}.`;
                 if (displayDateOption === 'one_day_before') {
-                    msg = `Room allotment will be displayed one day before exam at ${displayTimeStr}.`;
+                    msg = `Room allotment will be displayed one day before exam at ${displayTimeAMPM}.`;
                 }
                 return res.status(404).json({
                     success: false,
