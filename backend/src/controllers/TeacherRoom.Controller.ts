@@ -2,6 +2,19 @@ import { Request, Response } from "express";
 import { TeacherRoomModel } from "../models";
 import { Types } from "mongoose";
 
+/**
+ * Returns true only when every word in `query` appears as a
+ * case-insensitive substring of at least one word in `fullName`.
+ * Example: "Somnath" matches "Sri Somnath Saha" but NOT "Dr. Sonel Som".
+ */
+function nameMatches(query: string, fullName: string): boolean {
+    const nameWords  = fullName.toLowerCase().split(/\s+/).filter(Boolean);
+    const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean);
+    return queryWords.every(qw =>
+        nameWords.some(nw => nw.includes(qw))
+    );
+}
+
 class TeacherRoomController {
     getTeacherRooms = async (req: Request, res: Response) => {
         const rooms = await TeacherRoomModel.find();
@@ -158,8 +171,12 @@ class TeacherRoomController {
 
             const cleanName = (name || "").trim();
             if (cleanName) {
-                rooms = rooms.filter(room => isSimilar(cleanName, room.name || ""));
+                rooms = rooms.filter(room => nameMatches(cleanName, room.name || ""));
             }
+
+            // Sort results by date ascending
+            rooms.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
 
             if (!rooms || rooms.length === 0) {
                 return res.status(404).json({

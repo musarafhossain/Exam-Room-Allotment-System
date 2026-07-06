@@ -259,10 +259,6 @@ export function TeacherRoomView() {
         assignments: validDateIndices.map(i => r.assignments[i])
       }));
 
-    if (filteredDates.length === 0 || validTeachers.length === 0) {
-      toast.error('Please fill out at least one valid date and one teacher name before submitting.');
-      return;
-    }
 
     const payload = {
       dates: filteredDates,
@@ -557,12 +553,27 @@ export function TeacherRoomView() {
           <TableHead>
             <TableRow>
               <TableCell sx={{
+                width: 42,
+                minWidth: 42,
+                fontWeight: 'bold',
+                backgroundColor: '#fff',
+                zIndex: 11,
+                position: 'sticky',
+                left: 0,
+                top: 0,
+                textAlign: 'center',
+                px: 1,
+                borderRight: '1px solid #e0e0e0'
+              }}>
+                #
+              </TableCell>
+              <TableCell sx={{
                 minWidth: 250,
                 fontWeight: 'bold',
                 backgroundColor: '#fff',
                 zIndex: 10,
                 position: 'sticky',
-                left: 0,
+                left: 42,
                 top: 0,
                 borderRight: '1px solid #e0e0e0'
               }}>
@@ -718,11 +729,27 @@ export function TeacherRoomView() {
             rows.map((row, rowIndex) => (
               <TableRow key={rowIndex} sx={{ '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' } }}>
                 <TableCell sx={{
+                  width: 42,
+                  minWidth: 42,
+                  position: 'sticky',
+                  left: 0,
+                  bgcolor: 'white',
+                  zIndex: 1,
+                  borderRight: '1px solid #e0e0e0',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  color: 'text.secondary',
+                  fontSize: 13,
+                  px: 1
+                }}>
+                  {rowIndex + 1}
+                </TableCell>
+                <TableCell sx={{
                   width: 200,
                   maxWidth: 200,
                   minWidth: 200,
                   position: 'sticky',
-                  left: 0,
+                  left: 42,
                   bgcolor: 'white',
                   zIndex: 1,
                   borderRight: '1px solid #e0e0e0'
