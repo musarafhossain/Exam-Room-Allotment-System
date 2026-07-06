@@ -23,38 +23,30 @@ interface FindStudentRoomViewProps {
     examType: string;
 }
 
-export default function FindStudentRoomView({ 
-    studentLabel, 
-    examType 
+export default function FindStudentRoomView({
+    studentLabel,
+    examType
 }: FindStudentRoomViewProps) {
     const [result, setResult] = useState<StudentRoomModel | null>(null);
     const [searched, setSearched] = useState(false);
     const [lastData, setLastData] = useState<SearchFormValues | null>(null);
     const [isNetworkError, setIsNetworkError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const mutation = useMutation({
         mutationFn: (data: SearchFormValues) => StudentRoomService.findStudentRoom(data),
         onSuccess: (res) => {
             setSearched(true);
             setIsNetworkError(false);
-            setErrorMessage(null);
             if (res.success && res.data) {
                 setResult(res.data);
             } else {
                 setResult(null);
-                if (res.message) setErrorMessage(res.message);
             }
         },
-        onError: (error: AxiosError<{ message?: string }>) => {
+        onError: (error: AxiosError) => {
             setSearched(true);
             setResult(null);
             setIsNetworkError(!error.response);
-            if (error.response?.data?.message) {
-                setErrorMessage(error.response.data.message);
-            } else {
-                setErrorMessage(null);
-            }
         }
     });
 
@@ -151,15 +143,7 @@ export default function FindStudentRoomView({
                     {mutation.isPending && <ResultSkeleton />}
 
                     {searched && !mutation.isPending && !isNetworkError && !result && (
-                        errorMessage ? (
-                            <Box sx={{ mt: 4, p: 3, bgcolor: 'error.lighter', borderRadius: 3, textAlign: 'center', border: '1px solid', borderColor: 'error.light' }}>
-                                <Typography variant="h6" color="error.main" fontWeight={700}>
-                                    {errorMessage}
-                                </Typography>
-                            </Box>
-                        ) : (
-                            <ResultEmpty />
-                        )
+                        <ResultEmpty />
                     )}
 
                     {isNetworkError && !mutation.isPending && (
