@@ -214,27 +214,44 @@ class StudentRoomController {
             const regNoBig = BigInt(regNo);
 
             // Fetch settings for display
-            const localToday = new Date();
             const displayDateSetting = await SettingModel.findOne({ key: 'student-allotment-display-date' });
             const displayTimeSetting = await SettingModel.findOne({ key: 'student-allotment-display-time' });
 
             const displayDateOption = displayDateSetting?.value || 'on_exam_day'; // 'on_exam_day' or 'one_day_before'
             const displayTimeStr = displayTimeSetting?.value || '00:00'; // HH:mm format
 
-            const currentHour = localToday.getHours();
-            const currentMinute = localToday.getMinutes();
+            // Get current time in IST
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                hourCycle: 'h23'
+            });
+            const parts = formatter.formatToParts(now);
+            const getPart = (type: string) => parts.find(p => p.type === type)?.value;
+            
+            const istYear = parseInt(getPart('year')!);
+            const istMonth = parseInt(getPart('month')!) - 1; // 0-indexed for Date
+            const istDay = parseInt(getPart('day')!);
+            const currentHour = parseInt(getPart('hour')!);
+            const currentMinute = parseInt(getPart('minute')!);
+
             const [displayHour, displayMinute] = displayTimeStr.split(':').map(Number);
 
             const isAfterDisplayTime = (currentHour > displayHour) || (currentHour === displayHour && currentMinute >= displayMinute);
 
             const allowedDates: Date[] = [];
-            const todayUTC = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()));
+            const todayUTC = new Date(Date.UTC(istYear, istMonth, istDay));
 
             allowedDates.push(todayUTC);
 
             if (displayDateOption === 'one_day_before') {
                 if (isAfterDisplayTime) {
-                    const tomorrowUTC = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate() + 1));
+                    const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
                     allowedDates.push(tomorrowUTC);
                 }
             } else {
