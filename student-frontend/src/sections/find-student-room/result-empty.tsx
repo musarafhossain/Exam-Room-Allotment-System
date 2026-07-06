@@ -5,7 +5,11 @@ import { Box, Typography, Fade } from '@mui/material';
 import Lottie from 'lottie-react';
 import animationData from '../../../public/assets/lottie/no_result_found.json';
 
-export default function ResultEmpty() {
+interface ResultEmptyProps {
+    message?: string | null;
+}
+
+export default function ResultEmpty({ message }: ResultEmptyProps) {
     return (
         <Fade in={true} timeout={500}>
             <Box
@@ -30,7 +34,9 @@ export default function ResultEmpty() {
                     textAlign: 'center',
                 }}>
                     <Typography variant="h6" fontWeight={700} color="text.primary" gutterBottom>No Assigned Room Found</Typography>
-                    <Typography variant="body2" color="text.secondary">We couldn&apos;t find any room allotment for the provided data. Please re-check your credentials.</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        {message || "We couldn't find any room allotment for the provided data. Please re-check your credentials."}
+                    </Typography>
                 </Box>
             </Box>
         </Fade>

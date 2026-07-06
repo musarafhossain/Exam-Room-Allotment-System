@@ -31,6 +31,7 @@ export default function FindStudentRoomView({
     const [searched, setSearched] = useState(false);
     const [lastData, setLastData] = useState<SearchFormValues | null>(null);
     const [isNetworkError, setIsNetworkError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const mutation = useMutation({
         mutationFn: (data: SearchFormValues) => StudentRoomService.findStudentRoom(data),
@@ -39,14 +40,17 @@ export default function FindStudentRoomView({
             setIsNetworkError(false);
             if (res.success && res.data) {
                 setResult(res.data);
+                setErrorMessage(null);
             } else {
                 setResult(null);
+                setErrorMessage(res.message || null);
             }
         },
         onError: (error: AxiosError) => {
             setSearched(true);
             setResult(null);
             setIsNetworkError(!error.response);
+            setErrorMessage((error.response?.data as any)?.message || null);
         }
     });
 
@@ -143,7 +147,7 @@ export default function FindStudentRoomView({
                     {mutation.isPending && <ResultSkeleton />}
 
                     {searched && !mutation.isPending && !isNetworkError && !result && (
-                        <ResultEmpty />
+                        <ResultEmpty message={errorMessage} />
                     )}
 
                     {isNetworkError && !mutation.isPending && (
