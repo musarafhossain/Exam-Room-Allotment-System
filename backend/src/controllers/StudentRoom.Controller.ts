@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { StudentRoomModel } from "../models";
+import { StudentRoomModel, SettingModel } from "../models";
 import { Types } from "mongoose";
 
 class StudentRoomController {
@@ -213,10 +213,48 @@ class StudentRoomController {
             // ✅ Convert to BigInt (SAFE for 20 digits)
             const regNoBig = BigInt(regNo);
 
+            // Fetch settings for display
             const localToday = new Date();
-            const today = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()));
+            const displayDateSetting = await SettingModel.findOne({ key: 'student-allotment-display-date' });
+            const displayTimeSetting = await SettingModel.findOne({ key: 'student-allotment-display-time' });
 
-            const query: any = { date: today };
+            const displayDateOption = displayDateSetting?.value || 'on_exam_day'; // 'on_exam_day' or 'one_day_before'
+            const displayTimeStr = displayTimeSetting?.value || '00:00'; // HH:mm format
+
+            const currentHour = localToday.getHours();
+            const currentMinute = localToday.getMinutes();
+            const [displayHour, displayMinute] = displayTimeStr.split(':').map(Number);
+
+            const isAfterDisplayTime = (currentHour > displayHour) || (currentHour === displayHour && currentMinute >= displayMinute);
+
+            const allowedDates: Date[] = [];
+            const todayUTC = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate()));
+
+            allowedDates.push(todayUTC);
+
+            if (displayDateOption === 'one_day_before') {
+                if (isAfterDisplayTime) {
+                    const tomorrowUTC = new Date(Date.UTC(localToday.getFullYear(), localToday.getMonth(), localToday.getDate() + 1));
+                    allowedDates.push(tomorrowUTC);
+                }
+            } else {
+                if (!isAfterDisplayTime) {
+                    allowedDates.pop(); // Remove today because time has not reached display time
+                }
+            }
+
+            if (allowedDates.length === 0) {
+                let msg = `Room allotment will be displayed on exam day at ${displayTimeStr}.`;
+                if (displayDateOption === 'one_day_before') {
+                    msg = `Room allotment will be displayed one day before exam at ${displayTimeStr}.`;
+                }
+                return res.status(403).json({
+                    success: false,
+                    message: msg
+                });
+            }
+
+            const query: any = { date: { $in: allowedDates } };
             if (subject) {
                 query.subject = subject;
             }
@@ -239,7 +277,7 @@ class StudentRoomController {
             if (!room) {
                 return res.status(404).json({
                     success: false,
-                    message: `No exam room found for the registration number on ${today.toDateString()}`
+                    message: `No exam room found for the registration number for the available date(s)`
                 });
             }
 

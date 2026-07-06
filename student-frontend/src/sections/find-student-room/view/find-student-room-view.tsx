@@ -31,22 +31,30 @@ export default function FindStudentRoomView({
     const [searched, setSearched] = useState(false);
     const [lastData, setLastData] = useState<SearchFormValues | null>(null);
     const [isNetworkError, setIsNetworkError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const mutation = useMutation({
         mutationFn: (data: SearchFormValues) => StudentRoomService.findStudentRoom(data),
         onSuccess: (res) => {
             setSearched(true);
             setIsNetworkError(false);
+            setErrorMessage(null);
             if (res.success && res.data) {
                 setResult(res.data);
             } else {
                 setResult(null);
+                if (res.message) setErrorMessage(res.message);
             }
         },
-        onError: (error: AxiosError) => {
+        onError: (error: AxiosError<{ message?: string }>) => {
             setSearched(true);
             setResult(null);
             setIsNetworkError(!error.response);
+            if (error.response?.data?.message) {
+                setErrorMessage(error.response.data.message);
+            } else {
+                setErrorMessage(null);
+            }
         }
     });
 
@@ -143,7 +151,15 @@ export default function FindStudentRoomView({
                     {mutation.isPending && <ResultSkeleton />}
 
                     {searched && !mutation.isPending && !isNetworkError && !result && (
-                        <ResultEmpty />
+                        errorMessage ? (
+                            <Box sx={{ mt: 4, p: 3, bgcolor: 'error.lighter', borderRadius: 3, textAlign: 'center', border: '1px solid', borderColor: 'error.light' }}>
+                                <Typography variant="h6" color="error.main" fontWeight={700}>
+                                    {errorMessage}
+                                </Typography>
+                            </Box>
+                        ) : (
+                            <ResultEmpty />
+                        )
                     )}
 
                     {isNetworkError && !mutation.isPending && (
