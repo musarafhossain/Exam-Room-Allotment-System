@@ -30,7 +30,7 @@ export default function ResultCard({ result, shiftType, index }: ResultCardProps
   const shiftTime = isShift1
     ? `${result.shift1Start || '10:00'} - ${result.shift1End || '13:00'}`
     : `${result.shift2Start || '14:00'} - ${result.shift2End || '17:00'}`;
-  const shiftColor = isShift1 ? "primary" : "secondary";
+  const shiftColor = true ? "primary" : "secondary";
 
   return (
     <Fade in={true} timeout={500}>

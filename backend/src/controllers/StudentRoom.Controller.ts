@@ -275,9 +275,18 @@ class StudentRoomController {
             });
 
             if (!room) {
+                const formatOptions: Intl.DateTimeFormatOptions = { 
+                    timeZone: 'Asia/Kolkata', 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric' 
+                };
+                const datesIST = allowedDates.map(d => d.toLocaleDateString('en-IN', formatOptions)).join(" and ");
+                const timeIST = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+
                 return res.status(404).json({
                     success: false,
-                    message: `No exam room found for the registration number for the available date(s)`
+                    message: `No exam room found for the registration number on ${datesIST} (as of ${timeIST} IST)`
                 });
             }
 
