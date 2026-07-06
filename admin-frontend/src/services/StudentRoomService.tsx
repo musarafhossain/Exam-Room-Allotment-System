@@ -13,6 +13,14 @@ export default class StudentRoomService extends BaseService {
         });
     }
 
+    public static getFilterOptions(params = {}): Promise<ResponseModel<{ dates: string[], times: string[] }>> {
+        return new Promise((resolve, reject) => {
+            this.Http.get(`${this.API_PREFIX}filters/options`, { params })
+                .then((res) => resolve(res?.data))
+                .catch((err) => reject(err));
+        });
+    }
+
     public static getById(id: string, params = {}): Promise<ResponseModel<StudentRoomModel>> {
         StudentRoomService.initCancelToken();
         return new Promise((resolve, reject) => {

@@ -6,6 +6,8 @@ import verifyJwtToken from '../middlewares/verifyJwtToken';
 
 const StudentRoomRouter = express.Router();
 
+StudentRoomRouter.get('/filters/options', verifyJwtToken, StudentRoomController.getFilterOptions);
+
 StudentRoomRouter.get('/', verifyJwtToken, StudentRoomController.getStudentRooms);
 
 StudentRoomRouter.get('/:id', verifyJwtToken, StudentRoomController.getStudentRoom);

@@ -383,6 +383,29 @@ class StudentRoomController {
             });
         }
     }
+
+    getFilterOptions = async (req: Request, res: Response) => {
+        try {
+            const { examType } = req.query;
+            const query: any = {};
+            if (examType) query.examType = examType;
+
+            const dates = await StudentRoomModel.distinct('date', query);
+            const times = await StudentRoomModel.distinct('time', query);
+
+            res.json({
+                success: true,
+                message: "Filter options fetched successfully",
+                data: {
+                    dates: dates.filter(Boolean).map((d: any) => d.toISOString ? d.toISOString().split('T')[0] : String(d).split('T')[0]),
+                    times: times.filter(Boolean)
+                }
+            });
+        } catch (error) {
+            console.error("GetFilterOptions Error:", error);
+            res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
 }
 
 export default new StudentRoomController();

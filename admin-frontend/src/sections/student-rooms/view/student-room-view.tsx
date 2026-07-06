@@ -44,11 +44,13 @@ export function StudentRoomView() {
   const [filterSubject, setFilterSubject] = useState<string[]>([]);
   const [filterPaper, setFilterPaper] = useState<string[]>([]);
   const [filterSemester, setFilterSemester] = useState<number[]>([]);
+  const [filterDate, setFilterDate] = useState<string>('');
+  const [filterTime, setFilterTime] = useState<string>('');
   const [clearSelectionTrigger, setClearSelectionTrigger] = useState(0);
 
   // Fetch data
   const stuRoomQuery = useQuery({
-    queryKey: ['student-rooms', page, rowsPerPage, searchTerm, activeTab, filterFloor, filterBuilding, filterSubject, filterPaper, filterSemester],
+    queryKey: ['student-rooms', page, rowsPerPage, searchTerm, activeTab, filterFloor, filterBuilding, filterSubject, filterPaper, filterSemester, filterDate, filterTime],
     queryFn: () => StudentRoomService.getList({ 
       page: page + 1, 
       limit: rowsPerPage, 
@@ -58,7 +60,9 @@ export function StudentRoomView() {
       building: filterBuilding.length > 0 ? filterBuilding.join(',') : undefined,
       subject: filterSubject.length > 0 ? filterSubject.join(',') : undefined,
       paper: filterPaper.length > 0 ? filterPaper.join(',') : undefined,
-      semester: filterSemester.length > 0 ? filterSemester.join(',') : undefined
+      semester: filterSemester.length > 0 ? filterSemester.join(',') : undefined,
+      date: filterDate || undefined,
+      time: filterTime || undefined
     }),
   });
 
@@ -82,6 +86,11 @@ export function StudentRoomView() {
     queryFn: () => BuildingService.getList({ page: 1, limit: 1000 }),
   });
 
+  const filterOptionsQuery = useQuery({
+    queryKey: ['student-room-filter-options', activeTab],
+    queryFn: () => StudentRoomService.getFilterOptions({ examType: activeTab }),
+  });
+
   // More robust data extraction
   const rooms = stuRoomQuery?.data?.items || [];
   const totalCount = stuRoomQuery?.data?.total || rooms.length || 0;
@@ -90,6 +99,9 @@ export function StudentRoomView() {
   const subjects = subjectQuery?.data?.items || [];
   const papers = paperQuery?.data?.items || [];
   const buildings = buildingQuery?.data?.items || [];
+  
+  const filterDates = filterOptionsQuery?.data?.data?.dates || [];
+  const filterTimes = filterOptionsQuery?.data?.data?.times || [];
 
   // Form setup
   const methods = useForm<RoomFormValues>({
@@ -377,6 +389,20 @@ export function StudentRoomView() {
           value={filterBuilding}
           onChange={(_, newValue) => { setFilterBuilding(newValue); setPage(0); }}
           renderInput={(params) => <TextField {...params} label="Filter Building" size="small" />}
+          sx={{ minWidth: 150, flex: 1 }}
+        />
+        <Autocomplete
+          options={filterDates}
+          value={filterDate || null}
+          onChange={(_, newValue) => { setFilterDate(newValue || ''); setPage(0); }}
+          renderInput={(params) => <TextField {...params} label="Filter Date" size="small" />}
+          sx={{ minWidth: 150, flex: 1 }}
+        />
+        <Autocomplete
+          options={filterTimes}
+          value={filterTime || null}
+          onChange={(_, newValue) => { setFilterTime(newValue || ''); setPage(0); }}
+          renderInput={(params) => <TextField {...params} label="Filter Time" size="small" />}
           sx={{ minWidth: 150, flex: 1 }}
         />
         {activeTab === 'UG/PG' && (
