@@ -8,6 +8,8 @@ const SubjectRouter = express.Router();
 
 SubjectRouter.get('/', SubjectController.getSubjects);
 
+SubjectRouter.get('/exam-subjects', SubjectController.getExamSubjects);
+
 SubjectRouter.get('/:id', verifyJwtToken, SubjectController.getSubject);
 
 SubjectRouter.post(

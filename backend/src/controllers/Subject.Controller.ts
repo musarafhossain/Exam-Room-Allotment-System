@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { SubjectModel } from "../models";
+import { SettingModel, StudentRoomModel, SubjectModel } from "../models";
 import { Types } from "mongoose";
 
 class SubjectController {
@@ -22,6 +22,67 @@ class SubjectController {
             total,
             currentPage: page,
             lastPage
+        });
+    }
+
+    getExamSubjects = async (req: Request, res: Response) => {
+        // Fetch settings for display
+        const displayDateSetting = await SettingModel.findOne({ key: 'student-allotment-display-date' });
+        const displayTimeSetting = await SettingModel.findOne({ key: 'student-allotment-display-time' });
+
+        const displayDateOption = displayDateSetting?.value || 'on_exam_day'; // 'on_exam_day' or 'one_day_before'
+        const displayTimeStr = displayTimeSetting?.value || '00:00'; // HH:mm format
+
+        // Get current time in IST
+        const now = new Date();
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hourCycle: 'h23'
+        });
+        const parts = formatter.formatToParts(now);
+        const getPart = (type: string) => parts.find(p => p.type === type)?.value;
+
+        const istYear = parseInt(getPart('year')!);
+        const istMonth = parseInt(getPart('month')!) - 1; // 0-indexed for Date
+        const istDay = parseInt(getPart('day')!);
+        const currentHour = parseInt(getPart('hour')!);
+        const currentMinute = parseInt(getPart('minute')!);
+
+        const [displayHour, displayMinute] = displayTimeStr.split(':').map(Number);
+        const isAfterDisplayTime = (currentHour > displayHour) || (currentHour === displayHour && currentMinute >= displayMinute);
+
+        const allowedDates: Date[] = [];
+        const todayUTC = new Date(Date.UTC(istYear, istMonth, istDay));
+
+        allowedDates.push(todayUTC);
+
+        if (displayDateOption === 'one_day_before' && isAfterDisplayTime) {
+            const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
+            allowedDates.push(tomorrowUTC);
+        }
+
+        if (allowedDates.length === 0) {
+            return res.json({
+                success: true,
+                message: "Subjects fetched successfully",
+                data: []
+            });
+        }
+
+        const query: any = {};
+        query.date = { $in: allowedDates };
+
+        const subjects = await StudentRoomModel.distinct('subject', query);
+
+        res.json({
+            success: true,
+            message: "Exam subjects fetched successfully",
+            data: subjects.filter(Boolean).sort((a: string, b: string) => a.localeCompare(b))
         });
     }
 
