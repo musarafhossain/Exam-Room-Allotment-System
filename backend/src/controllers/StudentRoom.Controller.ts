@@ -253,9 +253,15 @@ class StudentRoomController {
 
             allowedDates.push(todayUTC);
 
-            if (displayDateOption === 'one_day_before' && isAfterDisplayTime) {
-                const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
-                allowedDates.push(tomorrowUTC);
+            if (displayDateOption === 'one_day_before') {
+                if (isAfterDisplayTime) {
+                    const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
+                    allowedDates.push(tomorrowUTC);
+                }
+            } else {
+                if (!isAfterDisplayTime) {
+                    allowedDates.pop(); // Remove today because time has not reached display time
+                }
             }
 
             if (allowedDates.length === 0) {
@@ -386,90 +392,17 @@ class StudentRoomController {
 
             const dates = await StudentRoomModel.distinct('date', query);
             const times = await StudentRoomModel.distinct('time', query);
-            const subjects = await StudentRoomModel.distinct('subject', query);
-            const papers = await StudentRoomModel.distinct('paper', query);
 
             res.json({
                 success: true,
                 message: "Filter options fetched successfully",
                 data: {
                     dates: dates.filter(Boolean).map((d: any) => d.toISOString ? d.toISOString().split('T')[0] : String(d).split('T')[0]),
-                    times: times.filter(Boolean),
-                    subjects: subjects.filter(Boolean),
-                    papers: papers.filter(Boolean)
+                    times: times.filter(Boolean)
                 }
             });
         } catch (error) {
             console.error("GetFilterOptions Error:", error);
-            res.status(500).json({ success: false, message: "Internal server error" });
-        }
-    }
-
-    getSubjectsWithExams = async (req: Request, res: Response) => {
-        try {
-            const { examType } = req.query;
-            const query: any = {};
-            if (examType) query.examType = examType;
-
-            // Fetch settings for display
-            const displayDateSetting = await SettingModel.findOne({ key: 'student-allotment-display-date' });
-            const displayTimeSetting = await SettingModel.findOne({ key: 'student-allotment-display-time' });
-
-            const displayDateOption = displayDateSetting?.value || 'on_exam_day'; // 'on_exam_day' or 'one_day_before'
-            const displayTimeStr = displayTimeSetting?.value || '00:00'; // HH:mm format
-
-            // Get current time in IST
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: 'Asia/Kolkata',
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                hourCycle: 'h23'
-            });
-            const parts = formatter.formatToParts(now);
-            const getPart = (type: string) => parts.find(p => p.type === type)?.value;
-            
-            const istYear = parseInt(getPart('year')!);
-            const istMonth = parseInt(getPart('month')!) - 1; // 0-indexed for Date
-            const istDay = parseInt(getPart('day')!);
-            const currentHour = parseInt(getPart('hour')!);
-            const currentMinute = parseInt(getPart('minute')!);
-
-            const [displayHour, displayMinute] = displayTimeStr.split(':').map(Number);
-            const isAfterDisplayTime = (currentHour > displayHour) || (currentHour === displayHour && currentMinute >= displayMinute);
-
-            const allowedDates: Date[] = [];
-            const todayUTC = new Date(Date.UTC(istYear, istMonth, istDay));
-
-            allowedDates.push(todayUTC);
-
-            if (displayDateOption === 'one_day_before' && isAfterDisplayTime) {
-                const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
-                allowedDates.push(tomorrowUTC);
-            }
-
-            if (allowedDates.length === 0) {
-                return res.json({
-                    success: true,
-                    message: "Subjects fetched successfully",
-                    data: []
-                });
-            }
-
-            query.date = { $in: allowedDates };
-
-            const subjects = await StudentRoomModel.distinct('subject', query);
-
-            res.json({
-                success: true,
-                message: "Subjects fetched successfully",
-                data: subjects.filter(Boolean).sort((a: string, b: string) => a.localeCompare(b))
-            });
-        } catch (error) {
-            console.error("GetSubjectsWithExams Error:", error);
             res.status(500).json({ success: false, message: "Internal server error" });
         }
     }

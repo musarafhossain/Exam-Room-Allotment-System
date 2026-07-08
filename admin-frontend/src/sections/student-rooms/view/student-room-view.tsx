@@ -2,12 +2,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Box, 
+import {
+  Box,
   Tabs,
   Tab,
   TextField,
-  Autocomplete 
+  Autocomplete
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,10 +51,10 @@ export function StudentRoomView() {
   // Fetch data
   const stuRoomQuery = useQuery({
     queryKey: ['student-rooms', page, rowsPerPage, searchTerm, activeTab, filterFloor, filterBuilding, filterSubject, filterPaper, filterSemester, filterDate, filterTime],
-    queryFn: () => StudentRoomService.getList({ 
-      page: page + 1, 
-      limit: rowsPerPage, 
-      search: searchTerm, 
+    queryFn: () => StudentRoomService.getList({
+      page: page + 1,
+      limit: rowsPerPage,
+      search: searchTerm,
       examType: activeTab,
       floor: filterFloor.length > 0 ? filterFloor.join(',') : undefined,
       building: filterBuilding.length > 0 ? filterBuilding.join(',') : undefined,
@@ -99,11 +99,9 @@ export function StudentRoomView() {
   const subjects = subjectQuery?.data?.items || [];
   const papers = paperQuery?.data?.items || [];
   const buildings = buildingQuery?.data?.items || [];
-  
+
   const filterDates = filterOptionsQuery?.data?.data?.dates || [];
   const filterTimes = filterOptionsQuery?.data?.data?.times || [];
-  const filterSubjects = filterOptionsQuery?.data?.data?.subjects || [];
-  const filterPapers = filterOptionsQuery?.data?.data?.papers || [];
 
   // Form setup
   const methods = useForm<RoomFormValues>({
@@ -252,13 +250,13 @@ export function StudentRoomView() {
     fieldsToCompare.forEach(field => {
       if (selected.length === 0) return;
       const firstVal = selected[0][field as keyof StudentRoomModel];
-      
+
       const isAllSame = selected.every(r => {
-          let val = r[field as keyof StudentRoomModel];
-          if (field === 'date' && val) val = (val as string).split('T')[0];
-          let fVal = firstVal;
-          if (field === 'date' && fVal) fVal = (fVal as string).split('T')[0];
-          return val === fVal;
+        let val = r[field as keyof StudentRoomModel];
+        if (field === 'date' && val) val = (val as string).split('T')[0];
+        let fVal = firstVal;
+        if (field === 'date' && fVal) fVal = (fVal as string).split('T')[0];
+        return val === fVal;
       });
 
       if (isAllSame) {
@@ -274,7 +272,7 @@ export function StudentRoomView() {
 
     setInitialLockedFields(locked);
     setUnlockedFields({});
-    
+
     bulkEditMethods.reset({
       examType: (commonValues.examType as any) || activeTab,
       examName: commonValues.examName || '',
@@ -296,7 +294,7 @@ export function StudentRoomView() {
   const onBulkEditSubmit = (formData: RoomFormValues) => {
     const updateData: Partial<RoomFormValues> = {};
     const fields: (keyof RoomFormValues)[] = ['examType', 'examName', 'roomNo', 'floor', 'building', 'subject', 'paper', 'semester', 'time', 'date', 'regNoFrom', 'regNoTo'];
-    
+
     fields.forEach(field => {
       if (!initialLockedFields[field] || unlockedFields[field]) {
         updateData[field] = formData[field] as any;
@@ -335,12 +333,12 @@ export function StudentRoomView() {
   return (
     <Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs 
-          value={activeTab} 
+        <Tabs
+          value={activeTab}
           onChange={(_, newVal) => {
             setActiveTab(newVal);
             setPage(0);
-          }} 
+          }}
           aria-label="exam type tabs"
         >
           <Tab label="UG/PG Exams" value="UG/PG" />
@@ -348,17 +346,17 @@ export function StudentRoomView() {
         </Tabs>
       </Box>
 
-      <Box sx={{ 
-        mb: 3, 
-        p: 2, 
-        bgcolor: 'background.paper', 
-        borderRadius: 2, 
-        boxShadow: '0px 2px 10px rgba(0,0,0,0.05)', 
-        border: '1px solid', 
+      <Box sx={{
+        mb: 3,
+        p: 2,
+        bgcolor: 'background.paper',
+        borderRadius: 2,
+        boxShadow: '0px 2px 10px rgba(0,0,0,0.05)',
+        border: '1px solid',
         borderColor: 'divider',
-        display: 'flex', 
-        gap: 2, 
-        flexWrap: 'wrap' 
+        display: 'flex',
+        gap: 2,
+        flexWrap: 'wrap'
       }}>
         {activeTab === 'UG/PG' && (
           <Autocomplete
@@ -413,7 +411,7 @@ export function StudentRoomView() {
               multiple
               limitTags={2}
               disableCloseOnSelect
-              options={filterSubjects}
+              options={subjects.map((s) => s.name)}
               value={filterSubject}
               onChange={(_, newValue) => { setFilterSubject(newValue); setPage(0); }}
               renderInput={(params) => <TextField {...params} label="Filter Subject" size="small" />}
@@ -423,7 +421,7 @@ export function StudentRoomView() {
               multiple
               limitTags={2}
               disableCloseOnSelect
-              options={filterPapers}
+              options={papers.map((p) => p.name)}
               value={filterPaper}
               onChange={(_, newValue) => { setFilterPaper(newValue); setPage(0); }}
               renderInput={(params) => <TextField {...params} label="Filter Paper" size="small" />}
@@ -504,12 +502,12 @@ export function StudentRoomView() {
         onSubmit={handleBulkSubmit(onBulkEditSubmit)}
         isSaving={bulkUpdateMutation.isPending}
       >
-        <StudentRoomBulkEditForm 
-          methods={bulkEditMethods} 
-          floors={floors} 
-          subjects={subjects} 
-          papers={papers} 
-          buildings={buildings} 
+        <StudentRoomBulkEditForm
+          methods={bulkEditMethods}
+          floors={floors}
+          subjects={subjects}
+          papers={papers}
+          buildings={buildings}
           initialLockedFields={initialLockedFields}
           unlockedFields={unlockedFields}
           onUnlockField={(field) => setUnlockedFields(prev => ({ ...prev, [field]: true }))}

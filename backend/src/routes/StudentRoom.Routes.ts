@@ -8,8 +8,6 @@ const StudentRoomRouter = express.Router();
 
 StudentRoomRouter.get('/filters/options', verifyJwtToken, StudentRoomController.getFilterOptions);
 
-StudentRoomRouter.get('/subjects', StudentRoomController.getSubjectsWithExams);
-
 StudentRoomRouter.get('/', verifyJwtToken, StudentRoomController.getStudentRooms);
 
 StudentRoomRouter.get('/:id', verifyJwtToken, StudentRoomController.getStudentRoom);

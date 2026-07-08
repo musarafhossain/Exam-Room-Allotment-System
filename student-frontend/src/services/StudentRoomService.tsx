@@ -13,13 +13,4 @@ export default class StudentRoomService extends BaseService {
                 .catch((err) => reject(err));
         });
     }
-
-    public static getSubjectsWithExams(params = {}): Promise<ResponseModel<string[]>> {
-        StudentRoomService.initCancelToken();
-        return new Promise((resolve, reject) => {
-            this.Http.get(`${this.API_PREFIX}subjects`, { params, cancelToken: StudentRoomService.source?.token })
-                .then((res) => resolve(res?.data))
-                .catch((err) => reject(err));
-        });
-    }
 }
