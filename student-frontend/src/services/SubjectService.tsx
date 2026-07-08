@@ -13,4 +13,13 @@ export default class SubjectService extends BaseService {
                 .catch((err) => reject(err));
         });
     }
+
+    public static getExamSubjects(params = {}): Promise<ResponseModel<string[]>> {
+        SubjectService.initCancelToken();
+        return new Promise((resolve, reject) => {
+            this.Http.get(this.API_PREFIX + 'exam-subjects', { params, cancelToken: SubjectService.source?.token })
+                .then((res) => resolve(res?.data))
+                .catch((err) => reject(err));
+        });
+    }
 }

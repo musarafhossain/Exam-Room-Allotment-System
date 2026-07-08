@@ -68,17 +68,14 @@ export default function RoomSearchForm({
 
     // Fetch subjects from the backend using SubjectService
     const { data: subjectsResponse, isPending: isLoadingSubjects } = useQuery({
-        queryKey: ['subjects-list'],
-        queryFn: () => SubjectService.getList({ limit: 1000 }),
+        queryKey: ['exam-subjects-list'],
+        queryFn: () => SubjectService.getExamSubjects({ limit: 1000 }),
         enabled: showSubjectField,
     });
 
     const subjects = useMemo(() => {
-        if (!subjectsResponse?.items) return [];
-        return subjectsResponse.items
-            .map((s: { name?: string }) => s.name)
-            .filter((name): name is string => !!name)
-            .sort((a, b) => a.localeCompare(b));
+        if (!subjectsResponse?.data) return [];
+        return subjectsResponse.data;
     }, [subjectsResponse]);
 
     return (
