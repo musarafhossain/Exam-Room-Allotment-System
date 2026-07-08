@@ -102,6 +102,8 @@ export function StudentRoomView() {
   
   const filterDates = filterOptionsQuery?.data?.data?.dates || [];
   const filterTimes = filterOptionsQuery?.data?.data?.times || [];
+  const filterSubjects = filterOptionsQuery?.data?.data?.subjects || [];
+  const filterPapers = filterOptionsQuery?.data?.data?.papers || [];
 
   // Form setup
   const methods = useForm<RoomFormValues>({
@@ -411,7 +413,7 @@ export function StudentRoomView() {
               multiple
               limitTags={2}
               disableCloseOnSelect
-              options={subjects.map((s) => s.name)}
+              options={filterSubjects}
               value={filterSubject}
               onChange={(_, newValue) => { setFilterSubject(newValue); setPage(0); }}
               renderInput={(params) => <TextField {...params} label="Filter Subject" size="small" />}
@@ -421,7 +423,7 @@ export function StudentRoomView() {
               multiple
               limitTags={2}
               disableCloseOnSelect
-              options={papers.map((p) => p.name)}
+              options={filterPapers}
               value={filterPaper}
               onChange={(_, newValue) => { setFilterPaper(newValue); setPage(0); }}
               renderInput={(params) => <TextField {...params} label="Filter Paper" size="small" />}

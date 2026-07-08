@@ -15,7 +15,7 @@ import {
     Search as SearchIcon,
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { SubjectService } from 'services';
+import { StudentRoomService } from 'services';
 
 export const getSearchSchema = (label: string) => zod.object({
     regNo: zod.string().min(1, `${label} is required`).max(20, 'Maximum 20 digits allowed'),
@@ -66,19 +66,16 @@ export default function RoomSearchForm({
         return examType === 'test';
     }, [examType]);
 
-    // Fetch subjects from the backend using SubjectService
+    // Fetch subjects from the backend that have exams
     const { data: subjectsResponse, isPending: isLoadingSubjects } = useQuery({
-        queryKey: ['subjects-list'],
-        queryFn: () => SubjectService.getList({ limit: 1000 }),
+        queryKey: ['subjects-list', examType],
+        queryFn: () => StudentRoomService.getSubjectsWithExams({ examType }),
         enabled: showSubjectField,
     });
 
     const subjects = useMemo(() => {
-        if (!subjectsResponse?.items) return [];
-        return subjectsResponse.items
-            .map((s: { name?: string }) => s.name)
-            .filter((name): name is string => !!name)
-            .sort((a, b) => a.localeCompare(b));
+        if (!subjectsResponse?.data) return [];
+        return subjectsResponse.data;
     }, [subjectsResponse]);
 
     return (
