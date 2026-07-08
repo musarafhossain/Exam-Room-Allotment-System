@@ -253,15 +253,9 @@ class StudentRoomController {
 
             allowedDates.push(todayUTC);
 
-            if (displayDateOption === 'one_day_before') {
-                if (isAfterDisplayTime) {
-                    const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
-                    allowedDates.push(tomorrowUTC);
-                }
-            } else {
-                if (!isAfterDisplayTime) {
-                    allowedDates.pop(); // Remove today because time has not reached display time
-                }
+            if (displayDateOption === 'one_day_before' && isAfterDisplayTime) {
+                const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
+                allowedDates.push(tomorrowUTC);
             }
 
             if (allowedDates.length === 0) {
@@ -452,15 +446,9 @@ class StudentRoomController {
 
             allowedDates.push(todayUTC);
 
-            if (displayDateOption === 'one_day_before') {
-                if (isAfterDisplayTime) {
-                    const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
-                    allowedDates.push(tomorrowUTC);
-                }
-            } else {
-                if (!isAfterDisplayTime) {
-                    allowedDates.pop(); // Remove today because time has not reached display time
-                }
+            if (displayDateOption === 'one_day_before' && isAfterDisplayTime) {
+                const tomorrowUTC = new Date(Date.UTC(istYear, istMonth, istDay + 1));
+                allowedDates.push(tomorrowUTC);
             }
 
             if (allowedDates.length === 0) {
