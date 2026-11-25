@@ -30,8 +30,10 @@ function editDistance(first: string, second: string): number {
 }
 
 function wordsMatch(first: string, second: string): boolean {
-    if (first.includes(second) || second.includes(first)) return true;
+    if (first === second) return true;
 
+    // Only permit a single inserted, removed, or replaced character.
+    // Do not use partial-word matching, which can return unrelated names.
     return first.length >= 4 && second.length >= 4 && editDistance(first, second) <= 1;
 }
 
