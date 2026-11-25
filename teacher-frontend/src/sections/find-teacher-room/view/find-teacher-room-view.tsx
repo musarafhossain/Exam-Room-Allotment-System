@@ -76,7 +76,7 @@ export default function FindTeacherRoomView() {
         setSearched(false);
         const payload = {
             name: data.name,
-            ...(data.date ? { date: data.date } : {}),
+            date: data.date,
         };
         mutation.mutate(payload);
     };
@@ -86,7 +86,7 @@ export default function FindTeacherRoomView() {
             setSearched(false);
             const payload = {
                 name: lastData.name,
-                ...(lastData.date ? { date: lastData.date } : {}),
+                date: lastData.date,
             };
             mutation.mutate(payload);
         }
