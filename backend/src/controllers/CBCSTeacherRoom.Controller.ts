@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CBCSTeacherRoomModel } from "../models";
 import { Types } from "mongoose";
+import { nameMatches } from "../utils/name-matcher";
 
 class CBCSTeacherRoomController {
     getTeacherRooms = async (req: Request, res: Response) => {
@@ -158,7 +159,7 @@ class CBCSTeacherRoomController {
 
             const cleanName = (name || "").trim();
             if (cleanName) {
-                rooms = rooms.filter(room => isSimilar(cleanName, room.name || ""));
+                rooms = rooms.filter(room => nameMatches(cleanName, room.name || ""));
             }
 
             if (!rooms || rooms.length === 0) {
@@ -208,62 +209,3 @@ class CBCSTeacherRoomController {
 }
 
 export default new CBCSTeacherRoomController();
-
-function getLevenshteinDistance(a: string, b: string): number {
-    const matrix: number[][] = [];
-
-    for (let i = 0; i <= b.length; i++) {
-        matrix[i] = [i];
-    }
-
-    for (let j = 0; j <= a.length; j++) {
-        matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-            if (b.charAt(i - 1) === a.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1, // substitution
-                    Math.min(
-                        matrix[i][j - 1] + 1, // insertion
-                        matrix[i - 1][j] + 1  // deletion
-                    )
-                );
-            }
-        }
-    }
-
-    return matrix[b.length][a.length];
-}
-
-function isSimilar(searchQuery: string, targetName: string): boolean {
-    const searchWords = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
-    const targetWords = targetName.toLowerCase().split(/\s+/).filter(Boolean);
-
-    if (searchWords.length === 0) return true;
-    if (targetWords.length === 0) return false;
-
-    // Every search word must match at least one target word
-    return searchWords.every((sWord: string) => {
-        return targetWords.some((tWord: string) => {
-            // 1. Substring match (e.g. "Pan" matches "Pankaj")
-            if (tWord.includes(sWord) || sWord.includes(tWord)) {
-                return true;
-            }
-
-            // 2. Levenshtein distance check for spelling typo tolerance (e.g. "Panjak" or "Pakaj" matches "Pankaj")
-            const distance = getLevenshteinDistance(sWord, tWord);
-            const maxLength = Math.max(sWord.length, tWord.length);
-            
-            if (maxLength === 0) return true;
-            
-            const similarity = 1 - (distance / maxLength);
-
-            // A threshold of 0.65 allows for transpositions and minor typos (e.g. Panjak vs Pankaj is ~0.67 similarity)
-            return similarity >= 0.65;
-        });
-    });
-}
