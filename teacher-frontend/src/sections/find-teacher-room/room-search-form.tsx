@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import {
@@ -10,9 +10,10 @@ import {
     Stack,
     InputAdornment,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import {
     Person as PersonIcon,
-    CalendarMonth as CalendarIcon,
 } from '@mui/icons-material';
 
 export const searchSchema = zod.object({
@@ -34,6 +35,7 @@ export default function RoomSearchForm({
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
     } = useForm<SearchFormValues>({
         resolver: zodResolver(searchSchema),
@@ -86,43 +88,47 @@ export default function RoomSearchForm({
                         }}
                     />
 
-                    <TextField
-                        fullWidth
-                        label="Exam Date"
-                        type="date"
-                        {...register('date')}
-                        error={!!errors.date}
-                        helperText={errors.date?.message}
-                        slotProps={{
-                            inputLabel: {
-                                shrink: true,
-                                sx: {
-                                    color: 'rgba(0,0,0,0.7)',
-                                    fontWeight: 600,
-                                }
-                            },
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <CalendarIcon sx={{ color: 'primary.main', fontSize: 22 }} />
-                                    </InputAdornment>
-                                ),
-                            }
-                        }}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: 4,
-                                bgcolor: 'rgba(255,255,255,0.2)', 
-                                backdropFilter: 'blur(10px)',
-                                '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
-                            },
-                            '& .MuiOutlinedInput-input': {
-                                fontWeight: 600,
-                                color: '#000',
-                                fontSize: '1.25rem',
-                                py: 1.8
-                            },
-                        }}
+                    <Controller
+                        name="date"
+                        control={control}
+                        render={({ field }) => (
+                            <DatePicker
+                                label="Exam Date"
+                                format="DD/MM/YYYY"
+                                value={field.value ? dayjs(field.value) : null}
+                                onChange={(date) => field.onChange(date?.format('YYYY-MM-DD') ?? '')}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        error: !!errors.date,
+                                        helperText: errors.date?.message,
+                                        slotProps: {
+                                            inputLabel: {
+                                                shrink: true,
+                                                sx: {
+                                                    color: 'rgba(0,0,0,0.7)',
+                                                    fontWeight: 600,
+                                                }
+                                            },
+                                        },
+                                        sx: {
+                                            '& .MuiOutlinedInput-root': {
+                                                borderRadius: 4,
+                                                bgcolor: 'rgba(255,255,255,0.2)',
+                                                backdropFilter: 'blur(10px)',
+                                                '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
+                                            },
+                                            '& .MuiOutlinedInput-input': {
+                                                fontWeight: 600,
+                                                color: '#000',
+                                                fontSize: '1.25rem',
+                                                py: 1.8
+                                            },
+                                        },
+                                    },
+                                }}
+                            />
+                        )}
                     />
 
                     <Button
