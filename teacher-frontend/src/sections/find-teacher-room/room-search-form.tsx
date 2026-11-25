@@ -18,7 +18,7 @@ import {
 
 export const searchSchema = zod.object({
     name: zod.string().min(1, 'Teacher name is required'),
-    date: zod.string().optional().or(zod.literal('')),
+    date: zod.string().min(1, 'Exam date is required'),
 });
 
 export type SearchFormValues = zod.infer<typeof searchSchema>;
@@ -93,13 +93,32 @@ export default function RoomSearchForm({
                         control={control}
                         render={({ field }) => (
                             <DatePicker
-                                label="Exam Date"
+                                label="Duty Date"
                                 format="DD/MM/YYYY"
                                 value={field.value ? dayjs(field.value) : null}
                                 onChange={(date) => field.onChange(date?.format('YYYY-MM-DD') ?? '')}
+                                sx={{
+                                    width: '100%',
+                                    '& .MuiOutlinedInput-root, & .MuiPickersOutlinedInput-root': {
+                                        borderRadius: 4,
+                                        bgcolor: 'rgba(255,255,255,0.2)',
+                                        backdropFilter: 'blur(10px)',
+                                        '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
+                                    },
+                                    '& .MuiPickersOutlinedInput-notchedOutline': {
+                                        borderRadius: 'inherit',
+                                    },
+                                    '& .MuiOutlinedInput-input, & .MuiPickersInputBase-input': {
+                                        fontWeight: 600,
+                                        color: '#000',
+                                        fontSize: '1.25rem',
+                                        py: 1.8
+                                    },
+                                }}
                                 slotProps={{
                                     textField: {
                                         fullWidth: true,
+                                        required: true,
                                         error: !!errors.date,
                                         helperText: errors.date?.message,
                                         slotProps: {
@@ -112,13 +131,16 @@ export default function RoomSearchForm({
                                             },
                                         },
                                         sx: {
-                                            '& .MuiOutlinedInput-root': {
+                                            '& .MuiOutlinedInput-root, & .MuiPickersOutlinedInput-root': {
                                                 borderRadius: 4,
                                                 bgcolor: 'rgba(255,255,255,0.2)',
                                                 backdropFilter: 'blur(10px)',
                                                 '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
                                             },
-                                            '& .MuiOutlinedInput-input': {
+                                            '& .MuiPickersOutlinedInput-notchedOutline': {
+                                                borderRadius: 'inherit',
+                                            },
+                                            '& .MuiOutlinedInput-input, & .MuiPickersInputBase-input': {
                                                 fontWeight: 600,
                                                 color: '#000',
                                                 fontSize: '1.25rem',
