@@ -18,7 +18,7 @@ import {
 
 export const searchSchema = zod.object({
     name: zod.string().min(1, 'Teacher name is required'),
-    date: zod.string().min(1, 'Exam date is required'),
+    date: zod.string().optional().or(zod.literal('')),
 });
 
 export type SearchFormValues = zod.infer<typeof searchSchema>;
@@ -118,7 +118,6 @@ export default function RoomSearchForm({
                                 slotProps={{
                                     textField: {
                                         fullWidth: true,
-                                        required: true,
                                         error: !!errors.date,
                                         helperText: errors.date?.message,
                                         slotProps: {
