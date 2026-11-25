@@ -2,16 +2,54 @@ import { Request, Response } from "express";
 import { TeacherRoomModel } from "../models";
 import { Types } from "mongoose";
 
+function normalizeNameWords(name: string): string[] {
+    return name
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean);
+}
+
+function editDistance(first: string, second: string): number {
+    const previous = Array.from({ length: second.length + 1 }, (_, index) => index);
+
+    for (let firstIndex = 1; firstIndex <= first.length; firstIndex++) {
+        let diagonal = previous[0];
+        previous[0] = firstIndex;
+
+        for (let secondIndex = 1; secondIndex <= second.length; secondIndex++) {
+            const above = previous[secondIndex];
+            previous[secondIndex] = Math.min(
+                previous[secondIndex] + 1,
+                previous[secondIndex - 1] + 1,
+                diagonal + (first[firstIndex - 1] === second[secondIndex - 1] ? 0 : 1)
+            );
+            diagonal = above;
+        }
+    }
+
+    return previous[second.length];
+}
+
+function wordsMatch(first: string, second: string): boolean {
+    if (first.includes(second) || second.includes(first)) return true;
+
+    // Allow one typo in names of four or more characters (e.g. Sanata/Santana).
+    return first.length >= 4 && second.length >= 4 && editDistance(first, second) <= 1;
+}
+
 /**
- * Returns true only when every word in `query` appears as a
- * case-insensitive substring of at least one word in `fullName`.
- * Example: "Somnath" matches "Sri Somnath Saha" but NOT "Dr. Sonel Som".
+ * Matches names regardless of capitalization or punctuation and allows a
+ * single-character typo per substantial word.
  */
 function nameMatches(query: string, fullName: string): boolean {
-    const nameWords  = fullName.toLowerCase().split(/\s+/).filter(Boolean);
-    const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean);
-    return queryWords.every(qw =>
-        nameWords.some(nw => nw.includes(qw))
+    const queryWords = normalizeNameWords(query);
+    const nameWords = normalizeNameWords(fullName);
+
+    return queryWords.every(queryWord =>
+        nameWords.some(nameWord => wordsMatch(queryWord, nameWord))
     );
 }
 
@@ -225,19 +263,3 @@ class TeacherRoomController {
 }
 
 export default new TeacherRoomController();
-
-function isSimilar(searchQuery: string, targetName: string): boolean {
-    const searchWords = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
-    const targetWords = targetName.toLowerCase().split(/\s+/).filter(Boolean);
-
-    if (searchWords.length === 0) return true;
-    if (targetWords.length === 0) return false;
-
-    // Every search word must match at least one target word
-    return searchWords.every((sWord: string) => {
-        return targetWords.some((tWord: string) => {
-            // Substring match (e.g. "Pan" matches "Pankaj")
-            return tWord.includes(sWord) || sWord.includes(tWord);
-        });
-    });
-}
